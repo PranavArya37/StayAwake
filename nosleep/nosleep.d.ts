@@ -12,7 +12,7 @@ declare class NoSleep {
 
   constructor();
 
-  enable(): void;
+  enable(): Promise<void>;
   disable(): void;
 
   private _addSourceToVideo(

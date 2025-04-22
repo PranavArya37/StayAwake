@@ -1,0 +1,23 @@
+{
+    "name": "Stay Awake",
+    "short_name": "StayAwake",
+    "description": "Keep your screen awake and manage tasks.",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#22242a",
+    "theme_color": "#49d49d",
+    "icons": [
+      {
+        "src": "icons/ghost_192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "icons/ghost_512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }

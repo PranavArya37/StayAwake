@@ -1,92 +1,862 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+/* index.css */
+/* Import Google Font */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap");
 
+/* Define CSS variables for consistent theming */
 :root {
-  --highlight-green: #49d49d;
-  --highlight-blue: #008dd5;
+  /* Color Palette */
+  --highlight-green: #49d49d; /* Primary highlight (Awake state) */
+  --highlight-blue: #008dd5; /* Secondary highlight (Sleepy state) */
+  --bg-enabled: #22242a; /* Dark background for 'Awake' state */
+  --bg-disabled: #3e424d; /* Lighter grey/blue background for 'Almost sleepy' state */
+  --text-light: #fff; /* Main text color */
+  --text-dim: #ccc; /* Dimmer text color (subtitles, placeholders) */
+  --border-dark: #555; /* Dark border color */
+  --border-darker: #666; /* Slightly darker border/background */
+  --switch-off-grey: #adb5bd; /* Color for switches when off */
+  --battery-low: #e74c3c; /* Red for low battery */
+  --battery-medium: #f39c12; /* Orange for medium battery */
+  --battery-high: var(
+    --highlight-green
+  ); /* Green for high battery (matches primary highlight) */
+
+  /* Widget Styles */
+  --widget-bg: rgba(
+    40,
+    42,
+    48,
+    0.9
+  ); /* Semi-transparent background for widgets */
+  --widget-border: rgba(255, 255, 255, 0.1); /* Subtle border for widgets */
+
+  /* Widget Dimensions */
+  --min-widget-width: 250px; /* Minimum width for draggable widgets */
+  --min-widget-height: 180px; /* Minimum height for resizable widgets (ToDo) */
+
+  /* Layout Spacing */
+  --disclaimer-bottom-margin: 20px; /* Space below the disclaimer text */
 }
 
+/* Global Reset and Font */
 * {
-  font-family: "Poppins", sans-serif;
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  font-family: "Poppins", sans-serif; /* Apply Poppins font globally */
 }
 
-a {
-  text-decoration: none;
+/* HTML Base Styles */
+html {
+  height: 100%; /* Ensure HTML takes full viewport height */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  background-color: var(--bg-enabled); /* Default background color */
+  transition: background-color 0.3s ease; /* Smooth transition for background color changes */
 }
 
+/* Body Base Styles */
+body {
+  min-height: 100%; /* Ensure body takes at least full viewport height */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column; /* Stack navbar, hero, disclaimer vertically */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-y: auto; /* Allow vertical scrolling if content exceeds viewport */
+  color: var(--text-light); /* Default text color */
+  background-color: transparent; /* Body background is transparent, html background shows through */
+}
+
+/* Dynamic Background Classes (applied to <html> by JS) */
+html.background-enabled {
+  background-color: var(--bg-enabled); /* Dark background */
+}
+html.background-disabled {
+  background-color: var(--bg-disabled); /* Grey/blue background */
+}
+
+/* Navbar Styles */
+#navbar {
+  flex-shrink: 0; /* Prevent navbar from shrinking when content grows */
+  z-index: 1030; /* Ensure navbar stays above most content (Bootstrap default z-index) */
+}
+
+/* Hero Section Layout */
+.info-hero {
+  flex-grow: 1; /* Allow hero section to take up remaining vertical space */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  justify-content: center; /* Center content vertically */
+  padding: 2rem 1rem; /* Padding around the content */
+  text-align: center; /* Center text within the hero */
+}
+
+/* Heading Styles */
 h1 {
-  font-size: 3.2rem;
+  font-size: clamp(2rem, 6vw, 3.2rem); /* Responsive font size */
+  margin-bottom: 0.1em; /* Small space below h1 */
+  white-space: nowrap; /* Prevent "The screen is currently" from wrapping */
+}
+.status-text {
+  /* "Awake" / "Almost sleepy" - THIS CLASS IS ALWAYS ON #screen-status */
+  font-size: clamp(2.8rem, 9vw, 4.8rem); /* Larger responsive font size */
+  font-weight: 800; /* DEFINITIVE FONT WEIGHT SETTING */
+  line-height: 1.1; /* Tight line spacing */
+  margin-top: -0.1em; /* Slight overlap with h1 */
+  /* Color will be handled by .highlight-text or .secondary-highlight-text */
 }
 
+/* Dynamic Highlight Classes (applied by JS) */
+.highlight-text {
+  /* Primary highlight (Green when awake) */
+  color: var(--highlight-green);
+  /* font-weight: 800; */ /* REMOVED - Handled by .status-text for #screen-status */
+  transition: color 0.3s ease;
+}
+.secondary-highlight-text {
+  /* Secondary highlight (Blue when sleepy) */
+  color: var(--highlight-blue);
+  /* font-weight: 800; */ /* REMOVED - Handled by .status-text for #screen-status */
+  transition: color 0.3s ease;
+}
+/* NOTE: The font-weight might still be needed in these classes
+   if they are used on OTHER elements that DON'T also have .status-text.
+   If they are ONLY used for #screen-status, removing it is fine.
+   Looking at changeBackground in index.ts, these classes ARE applied
+   to other elements like the navbar brand span, username, widget icons, buttons.
+   THEREFORE, we should RE-ADD font-weight: 800 to these general highlight classes,
+   but rely on .status-text specifically for the #screen-status element's weight.
+   Let's revert that specific removal but keep the change to the disclaimer below.
+*/
+.highlight-text {
+  /* Primary highlight (Green when awake) */
+  color: var(--highlight-green);
+  font-weight: 800; /* RE-ADDED - Needed for other elements */
+  transition: color 0.3s ease;
+}
+.secondary-highlight-text {
+  /* Secondary highlight (Blue when sleepy) */
+  color: var(--highlight-blue);
+  font-weight: 800; /* RE-ADDED - Needed for other elements */
+  transition: color 0.3s ease;
+}
+
+.icon-highlight-primary {
+  /* Widget icons (Green when awake) */
+  color: var(--highlight-green) !important;
+  transition: color 0.3s ease;
+}
+.icon-highlight-secondary {
+  /* Widget icons (Blue when sleepy) */
+  color: var(--highlight-blue) !important;
+  transition: color 0.3s ease;
+}
+.button-bg-primary {
+  /* Buttons (Green background when awake) */
+  background-color: var(--highlight-green) !important;
+  border-color: var(--highlight-green) !important;
+  color: var(--bg-enabled) !important; /* Dark text on green button */
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+}
+.button-bg-primary:hover {
+  opacity: 0.9;
+}
+.button-bg-secondary {
+  /* Buttons (Blue background when sleepy) */
+  background-color: var(--highlight-blue) !important;
+  border-color: var(--highlight-blue) !important;
+  color: var(--text-light) !important; /* Light text on blue button */
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+}
+.button-bg-secondary:hover {
+  opacity: 0.9;
+}
+
+/* Navbar Specific Styles */
+.navbar-brand {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+}
+.navbar i {
+  color: var(--text-light);
+  font-size: 1.4rem;
+  transition: color 0.2s ease;
+}
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.2s ease;
+}
+.nav-link:hover,
+.nav-link:focus {
+  color: var(--text-light);
+}
+.nav-link.btn-link {
+  padding: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+.nav-link.btn-link:hover {
+  color: var(--text-light);
+}
+
+/* Settings Dropdown Menu Styles */
+.dropdown-menu {
+  background-color: var(--bg-disabled);
+  border: 1px solid var(--border-dark);
+  color: var(--text-dim);
+  z-index: 1031;
+  min-width: 250px;
+}
+.dropdown-item {
+  color: var(--text-dim);
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: var(--text-light);
+  background-color: var(--border-darker);
+}
+.dropdown-header {
+  color: var(--text-dim);
+}
+.dropdown-menu .form-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.dropdown-menu .form-check-label {
+  color: var(--text-light);
+  font-size: 0.9em;
+  white-space: nowrap;
+  margin-left: 0.75em;
+  flex-grow: 1;
+  text-align: left;
+}
+.dropdown-menu .form-check-input {
+  flex-shrink: 0;
+}
+.dropdown-menu .form-check-input:not(:checked) {
+  background-color: var(--switch-off-grey);
+  border-color: var(--switch-off-grey);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: left center;
+}
+.dropdown-menu .form-check-input:checked {
+  background-color: var(--highlight-green);
+  border-color: var(--highlight-green);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: right center;
+}
+
+/* Hero Section Content Box */
+.info-box {
+  max-width: 90vw;
+  width: 600px;
+  min-width: 300px;
+  margin-bottom: 1.5rem;
+}
+#user-greeting {
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+#user-greeting .user-name {
+  font-weight: 600; /* Keep username bold */
+}
+#digital-clock {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+}
+.info-box .info-subtext {
+  font-size: clamp(1rem, 3vw, 1.2rem);
+}
+
+/* Main Keep Awake Switch Styling */
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(0, 141, 213, 0.25);
+  border-color: var(--highlight-blue);
+}
+#keep-awake-switch.form-check-input {
+  height: 3rem;
+  width: 6rem;
+  background-color: var(--switch-off-grey);
+  border-color: var(--switch-off-grey);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: left center;
+}
+#keep-awake-switch.form-check-input:checked {
+  background-color: var(--highlight-green);
+  border-color: var(--highlight-green);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: right center;
+}
+
+/* General Switch Styles (used in dropdown too) */
 .form-check-input:checked {
   background-color: var(--highlight-green);
   border-color: var(--highlight-green);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: right center;
+}
+.form-check-label {
+  vertical-align: middle;
+  margin-left: 0.5em;
+  color: var(--text-light);
 }
 
-.form-check-input:focus {
+/* Disclaimer Text Styling */
+#info-disclaimer {
+  width: 90%;
+  max-width: 600px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 0 10px;
+  z-index: 10;
+  margin-top: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--disclaimer-bottom-margin);
+  flex-shrink: 0;
+}
+/* Ensure the highlight classes DON'T make the specific span bold here */
+#info-disclaimer .highlight-text,
+#info-disclaimer .secondary-highlight-text {
+  font-weight: normal !important; /* Override the general 800 weight */
+}
+
+/* Modal Styling */
+.modal-content {
+  background-color: var(--bg-disabled);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+}
+.modal-header {
+  border-bottom: 1px solid var(--border-dark);
+}
+.modal-footer {
+  border-top: 1px solid var(--border-dark);
+}
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+#namePromptModal .form-control {
+  background-color: var(--border-darker);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+}
+#namePromptModal .form-control::placeholder {
+  color: #aaa;
+}
+#namePromptModal .form-control:focus {
+  background-color: #666;
+  color: var(--text-light);
+  border-color: var(--highlight-blue);
   box-shadow: none;
-  border: none;
 }
 
-.highlight-text {
-  color: var(--highlight-green);
-  font-weight: 800;
+/* --- Widget Base Styles --- */
+.widget {
+  position: fixed;
+  background-color: var(--widget-bg);
+  color: var(--text-light);
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--widget-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
+  z-index: 999;
+  min-width: var(--min-widget-width);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-
-.secondary-highlight-text {
-  color: var(--highlight-blue);
-  font-weight: 800;
-}
-
-.background-enabled {
-  background-color: #22242a;
-}
-
-.background-disabled {
-  background-color: #3e424d;
-}
-
-.navbar-brand {
-  font-size: 32px;
-}
-
-.navbar i {
-  color: #fff;
-  font-size: 32px;
-}
-
-.info-hero {
-  height: 100vh;
-  color: #fff;
+.widget-header {
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-dark);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(0, 0, 0, 0.1);
 }
-
-.info-box {
-  transform: translateY(-50%);
-  max-width: 35vw;
-  min-width: 300px;
+.widget-header .widget-icon {
+  font-size: 0.9rem;
 }
-
-.info-box p {
-  font-size: 1.2rem;
+.widget.dragging .widget-header,
+.widget.resizing .widget-header {
+  cursor: grabbing;
 }
-
-.info-box .form-check {
-  width: min-content;
+.widget.dragging,
+.widget.resizing {
+  opacity: 0.9;
+  border-color: var(--highlight-blue);
 }
-
-.info-disclaimer {
-  margin-top: 45px;
-  width: 40vw;
-  min-width: 300px;
+.widget-drag-handle {
+  flex-grow: 1;
+  min-height: 20px;
+}
+.widget-content {
+  flex-grow: 1;
+  padding: 10px 15px;
+}
+.widget-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-dark);
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.widget-hidden {
+  display: none !important;
+}
+.widget-resize-handle {
   position: absolute;
-  bottom: 20px;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 60%,
+      var(--text-dim) 60%,
+      var(--text-dim) 70%,
+      transparent 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 80%,
+      var(--text-dim) 80%,
+      var(--text-dim) 90%,
+      transparent 90%,
+      transparent 100%
+    );
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+.widget-resize-handle:hover {
+  opacity: 0.9;
+}
+
+/* --- Battery Widget --- */
+#battery-widget {
+  width: 160px;
+  height: auto;
+  top: 100px;
+  right: 20px;
+  left: auto;
+  z-index: 1000;
+}
+.battery-widget .widget-content {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.battery-visual {
+}
+.battery-capsule {
+  width: 35px;
+  height: 70px;
+  border: 3px solid #bbb;
+  border-radius: 8px;
+  position: relative;
+  background-color: #333;
+  overflow: hidden;
+  margin: 0 auto 5px auto;
+}
+.battery-capsule::before {
+  content: "";
+  position: absolute;
+  top: -6px;
   left: 50%;
   transform: translateX(-50%);
+  width: 15px;
+  height: 5px;
+  background-color: #bbb;
+  border-radius: 3px 3px 0 0;
+}
+.battery-level {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background-color: var(--battery-high);
+  border-radius: 0 0 5px 5px;
+  transition: height 0.5s ease, background-color 0.5s ease;
+}
+.battery-level.level-low {
+  background-color: var(--battery-low);
+}
+.battery-level.level-medium {
+  background-color: var(--battery-medium);
+}
+.battery-level.level-high {
+  background-color: var(--battery-high);
+}
+.battery-info {
+  text-align: center;
+  font-size: 0.8rem;
+}
+.battery-percentage {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+  display: block;
+}
+.battery-charging-status,
+.battery-low-status {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.charging-icon {
+  color: var(--highlight-green);
+  margin-left: 4px;
+  animation: charging-pulse 1.5s infinite ease-in-out;
+  vertical-align: middle;
+}
+.low-battery-icon {
+  color: var(--battery-low);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+@keyframes charging-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
+/* --- To-Do Widget --- */
+#todo-widget {
+  width: 300px;
+  height: 400px;
+  min-height: var(--min-widget-height);
+  top: 100px;
+  left: 20px;
+}
+#todo-widget .widget-content {
+  overflow-y: auto;
+  padding: 0;
+}
+.todo-list {
+  list-style: none;
+  padding: 10px 15px;
+  margin: 0;
+}
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-darker);
+  font-size: 0.9rem;
+}
+.todo-item:last-child {
+  border-bottom: none;
+}
+.todo-item input[type="checkbox"] {
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--highlight-green);
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+.todo-item span {
+  flex-grow: 1;
+  word-break: break-word;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  line-height: 1.4;
+}
+.todo-item.completed span {
+  color: var(--text-dim);
+  text-decoration: line-through;
+}
+.delete-todo-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--battery-low);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 5px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+.delete-todo-btn:hover {
+  opacity: 1;
+}
+#todo-widget .widget-footer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+#new-todo-input {
+  flex-grow: 1;
+  background-color: var(--border-darker);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
+  height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+#new-todo-input::placeholder {
+  color: #aaa;
+}
+#new-todo-input:focus {
+  background-color: var(--border-dark);
+  border-color: var(--highlight-blue);
+  box-shadow: none;
+  color: var(--text-light);
+}
+#add-todo-button {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+#add-todo-button i {
+  color: inherit !important;
+  vertical-align: middle;
+}
+
+/* --- Pomodoro Widget --- */
+#pomodoro-widget {
+  width: 280px;
+  height: auto;
+  min-height: var(--min-widget-height);
+  top: 240px;
+  left: 20px;
+}
+#pomodoro-widget .widget-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  flex-grow: 1;
+}
+.pomodoro-modes .btn {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  border-color: var(--border-dark);
+  color: var(--text-dim);
+  background-color: transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+}
+.pomodoro-modes .btn:hover {
+  background-color: var(--border-darker);
+  color: var(--text-light);
+}
+.pomodoro-modes .btn.active {
+  background-color: var(--highlight-green);
+  border-color: var(--highlight-green);
+  color: var(--bg-enabled);
+}
+.pomodoro-modes .btn.active.secondary-active {
+  background-color: var(--highlight-blue);
+  border-color: var(--highlight-blue);
+  color: var(--text-light);
+}
+.pomodoro-time-display {
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--text-light);
+  line-height: 1.1;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.pomodoro-controls .btn {
+  min-width: 80px;
+  padding: 0.3rem 0.6rem;
+}
+.pomodoro-controls .btn i {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+#pause-pomodoro-btn {
+  color: var(--bg-enabled) !important;
+}
+
+/* --- Digital Clock Widget --- */
+#digital-clock-widget {
+  width: auto; /* Let width adjust */
+  min-width: 260px; /* Slightly wider min-width */
+  height: auto;
+  top: 400px;
+  left: 20px;
+}
+#digital-clock-widget .widget-content {
+  padding: 10px 15px; /* Reduced padding */
+  display: flex; /* Use flex for centering */
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1; /* Ensure it takes height */
+}
+.digital-clock-widget-display-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align text */
+  justify-content: center;
+  width: 100%;
+}
+.widget-date-display {
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem); /* Smaller font size */
+  font-weight: 400;
+  color: var(--text-dim); /* Dimmer color */
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 2px; /* Small space between date and time */
+  display: block; /* Ensure it takes full width for centering */
+}
+.widget-time-display {
+  font-size: clamp(2.2rem, 8vw, 2.8rem); /* Larger font size */
+  font-weight: 600; /* Bolder */
+  color: var(--text-light);
+  letter-spacing: 1px;
+  text-align: center;
+  line-height: 1.1; /* Tighten line height */
+  display: block; /* Ensure it takes full width for centering */
+}
+
+/* --- Media Queries for Responsiveness --- */
 @media screen and (max-width: 768px) {
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+  }
+  .status-text {
+    font-size: clamp(2.2rem, 7vw, 3.5rem);
+  }
   .info-box {
-    transform: translateY(0%);
+    width: auto;
+    max-width: 90vw;
+  }
+  #info-disclaimer {
+    width: 95%;
+    font-size: 0.8rem;
+    --disclaimer-bottom-margin: 15px;
+    margin-bottom: var(--disclaimer-bottom-margin);
+  }
+  #battery-widget {
+    top: 80px;
+    right: 10px;
+    width: 140px;
+  }
+  .battery-capsule {
+    width: 30px;
+    height: 60px;
+  }
+  .battery-percentage {
+    font-size: 0.9rem;
+  }
+  .battery-info {
+    font-size: 0.75rem;
+  }
+  #todo-widget {
+    width: 280px;
+    height: 350px;
+    top: 80px;
+    left: 10px;
+  }
+  #pomodoro-widget {
+    width: 250px;
+    top: 440px; /* Pushed down by todo */
+    left: 10px;
+  }
+  .pomodoro-time-display {
+    font-size: 2.5rem;
+  }
+  #digital-clock-widget {
+    min-width: 240px;
+    top: 240px; /* Move clock up below battery */
+    left: 10px;
+  }
+  .widget-date-display {
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+  }
+  .widget-time-display {
+    font-size: clamp(2rem, 7vw, 2.5rem);
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .navbar-nav {
+    gap: 0.5rem !important;
+  }
+  .navbar i {
+    font-size: 1.2rem;
+  }
+  h1 {
+    font-size: clamp(1.6rem, 5.5vw, 2.2rem);
+  }
+  .status-text {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+  .info-hero {
+    padding: 1rem 0.5rem;
+  }
+  #keep-awake-switch.form-check-input {
+    height: 2.5rem;
+    width: 5rem;
+  }
+  #info-disclaimer {
+    --disclaimer-bottom-margin: 10px;
+    font-size: 0.75rem;
+    margin-bottom: var(--disclaimer-bottom-margin);
+  }
+  #battery-widget {
+    width: 120px;
+    top: 70px;
+    right: 5px;
+  }
+  #digital-clock-widget {
+    width: calc(100vw - 20px);
+    min-width: 180px;
+    top: 70px; /* Below battery */
+    left: 10px;
+    right: 10px;
+    z-index: 998; /* Slightly below battery if overlapping */
+  }
+  #todo-widget {
+    width: calc(100vw - 20px);
+    height: 250px; /* Shorter height */
+    top: 160px; /* Below clock */
+    left: 10px;
+    right: 10px;
+  }
+  #pomodoro-widget {
+    width: calc(100vw - 20px);
+    top: 420px; /* Below To-Do */
+    left: 10px;
+    right: 10px;
+  }
+  .widget-date-display {
+    font-size: 0.7rem;
+  }
+  .widget-time-display {
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
+  }
+  .pomodoro-time-display {
+    font-size: 2.2rem;
   }
 }
