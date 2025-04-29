@@ -4,19 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stay Awake</title>
-    <!-- Document Title -->
-    <!-- Theme color for browser UI (e.g., address bar on mobile) -->
+    <!-- Page Title -->
+    <!-- Theme Color for browser UI elements (esp. mobile) -->
     <meta name="theme-color" content="#49d49d" />
-    <!-- Link to the Web App Manifest for PWA capabilities -->
+    <!-- Link to the Web App Manifest -->
     <link rel="manifest" href="manifest.json" />
-    <!-- Bootstrap CSS for styling and layout -->
+
+    <!-- External Stylesheets -->
+    <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome 6 CSS for icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -24,9 +26,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Custom CSS -->
+    <!-- Custom Application Styles -->
     <link rel="stylesheet" href="index.css" />
-    <!-- Favicon link (dynamically changed by JS) -->
+
+    <!-- Favicon (path is updated dynamically by JS based on state) -->
     <link
       id="web-icon"
       rel="shortcut icon"
@@ -36,18 +39,18 @@
   </head>
 
   <body>
-    <!-- Navbar Section -->
+    <!-- Top Navigation Bar -->
     <nav
       id="navbar"
       class="navbar navbar-expand-lg navbar-dark background-enabled py-3"
     >
       <div class="container">
-        <!-- Brand Name -->
+        <!-- Site Brand/Logo -->
         <a class="navbar-brand" href="#">
           Stay <span class="highlight-text">Awake</span>
-          <!-- Span color changes dynamically -->
+          <!-- 'Awake' color changes with theme -->
         </a>
-        <!-- Mobile Nav Toggler -->
+        <!-- Mobile Navigation Toggle Button -->
         <button
           class="navbar-toggler"
           type="button"
@@ -59,13 +62,13 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- Navbar Links and Settings Dropdown -->
+        <!-- Collapsible Navbar Content (Links & Settings) -->
         <div
           class="collapse navbar-collapse align-items-center justify-content-end"
           id="navbarNavDropdown"
         >
           <ul class="navbar-nav gap-lg-4 gap-2 align-items-center">
-            <!-- About Modal Trigger -->
+            <!-- About Link (triggers modal) -->
             <li class="nav-item">
               <button
                 type="button"
@@ -76,7 +79,7 @@
                 About
               </button>
             </li>
-            <!-- External Links -->
+            <!-- External Links (Website, Social, GitHub) -->
             <li class="nav-item">
               <a
                 class="nav-link"
@@ -107,8 +110,9 @@
                 ><i class="fa-brands fa-github"></i
               ></a>
             </li>
-            <!-- Settings Dropdown -->
+            <!-- Settings Dropdown Menu -->
             <li class="nav-item dropdown">
+              <!-- Dropdown Toggle Button -->
               <a
                 class="nav-link"
                 href="#"
@@ -118,8 +122,9 @@
                 title="Settings"
                 ><i class="fa-solid fa-sliders"></i
               ></a>
+              <!-- Dropdown Menu Items -->
               <ul class="dropdown-menu dropdown-menu-end">
-                <!-- Clock Format Toggle -->
+                <!-- Clock Format (12/24hr) Toggle -->
                 <li class="px-3 py-2">
                   <div class="form-check form-switch mx-auto">
                     <input
@@ -210,8 +215,19 @@
                   </div>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
-                <!-- Actions -->
+                <!-- Edit Name Button -->
                 <li class="px-3 py-1">
+                  <button
+                    type="button"
+                    id="edit-name-btn"
+                    class="dropdown-item small"
+                  >
+                    <i class="fas fa-pencil-alt me-2"></i>Edit Name
+                  </button>
+                </li>
+                <!-- Other Actions -->
+                <li class="px-3 py-1">
+                  <!-- Copy Link Button with Bootstrap Tooltip for feedback -->
                   <button
                     type="button"
                     id="copy-link-btn"
@@ -221,7 +237,6 @@
                     data-bs-trigger="manual"
                     title="Copied!"
                   >
-                    <!-- Tooltip for copy feedback -->
                     <i class="fas fa-copy me-2"></i>Copy Link
                   </button>
                 </li>
@@ -234,7 +249,7 @@
                     <i class="fas fa-share-alt me-2"></i>Share App
                   </button>
                 </li>
-                <!-- Install PWA Button (hidden by default, shown by JS if install possible) -->
+                <!-- PWA Install Button (Hidden initially, shown by JS if applicable) -->
                 <li
                   id="install-pwa-item"
                   class="px-3 py-1"
@@ -248,7 +263,7 @@
                     <i class="fas fa-download me-2"></i>Install App
                   </button>
                 </li>
-                <!-- Help/Troubleshooting Modal Trigger -->
+                <!-- Help/Troubleshooting Link (triggers modal) -->
                 <li class="px-3 py-1">
                   <button
                     type="button"
@@ -266,31 +281,32 @@
         </div>
       </div>
     </nav>
-    <!-- End Navbar Section -->
+    <!-- End Navigation Bar -->
 
-    <!-- Hero Section (Main Content Area) -->
+    <!-- Hero Section: Main status display and primary control -->
     <div
       id="hero-section"
       class="info-hero container-fluid background-enabled text-center"
     >
       <div class="container">
+        <!-- Centering and max-width container -->
         <div class="info-box container-md mx-auto">
-          <!-- Greeting message (updated by JS) -->
+          <!-- Greeting (Dynamically updated with name/time) -->
           <h2 id="user-greeting" class="mb-3"></h2>
-          <!-- Main clock display (updated by JS) -->
+          <!-- Main Clock Display (Dynamically updated) -->
           <p id="digital-clock" class="mb-4"></p>
           <!-- Static text -->
           <h1>The screen is currently</h1>
-          <!-- Status text (updated by JS: "Awake" or "Almost sleepy") -->
+          <!-- Status Text (Dynamically updated: "Awake" / "Almost sleepy") -->
           <p id="screen-status" class="highlight-text status-text mb-3">
             Awake
           </p>
-          <!-- Static description -->
+          <!-- Description text -->
           <p class="info-subtext">
             This website prevents your device from going into sleep mode. Use
             the switch below to turn on/off this feature:
           </p>
-          <!-- Main Keep Awake Toggle Switch -->
+          <!-- Main Toggle Switch for Wake Lock -->
           <div class="form-check form-switch mx-auto py-4 d-inline-block">
             <input
               class="form-check-input py-4 px-5"
@@ -305,14 +321,15 @@
     </div>
     <!-- End Hero Section -->
 
-    <!-- Disclaimer Text -->
+    <!-- Disclaimer Text (Positioned near bottom) -->
     <p id="info-disclaimer" class="info-disclaimer">
       This website only prevents your device from sleeping if it's in a
       <span class="highlight-text">foreground</span> tab.
-      <!-- Span color changes dynamically -->
+      <!-- 'foreground' color changes with theme -->
     </p>
 
-    <!-- Modals Section -->
+    <!-- Modal Dialogs -->
+    <!-- All modals use Bootstrap's modal component -->
 
     <!-- About Modal -->
     <div
@@ -334,7 +351,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <!-- Modal Content -->
+            <!-- Content describing the app -->
             <p>
               This project prevents your device screen from automatically
               sleeping. It includes draggable widgets for Clock, To-Do, Pomodoro
@@ -343,14 +360,14 @@
               (PWA).
             </p>
             <p>
-              This project is based on
+              Based on
               <a
                 href="https://github.com/CarolinaMoraes/keep-awake"
                 target="_blank"
                 rel="noopener noreferrer"
                 >keep-awake</a
               >
-              by CarolinaMoraes, which itself was inspired by
+              and inspired by
               <a
                 href="https://nosleep.page/"
                 target="_blank"
@@ -360,11 +377,8 @@
             </p>
             <hr />
             <p class="small text-muted">
-              <strong>Troubleshooting Tip:</strong> Since all your settings,
-              tasks, and widget positions are saved locally in your browser,
-              simply refreshing the page is usually a safe first step if you
-              encounter any display issues or bugs. Your data won't be lost on
-              refresh.
+              <strong>Troubleshooting Tip:</strong> Refreshing the page is
+              usually safe as data is stored locally.
             </p>
             <hr />
             <p>
@@ -391,7 +405,7 @@
     </div>
     <!-- End About Modal -->
 
-    <!-- Name Prompt Modal (Shown on first visit) -->
+    <!-- Name Prompt Modal (Used for both initial prompt and editing name) -->
     <div
       class="modal fade"
       id="namePromptModal"
@@ -401,16 +415,17 @@
       aria-labelledby="namePromptModalLabel"
       aria-hidden="true"
     >
-      <!-- Static backdrop prevents closing by clicking outside -->
+      <!-- `data-bs-backdrop="static"` prevents closing on backdrop click -->
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="namePromptModalLabel">Welcome!</h5>
-            <!-- No close button -->
+            <!-- Consider updating title via JS for edit? -->
+            <!-- No close button (user must enter name or cancel if edit) -->
           </div>
           <div class="modal-body">
             <p>Please enter your name to personalize your experience.</p>
-            <!-- Name Input Field -->
+            <!-- Name Input Field (value pre-filled by JS for editing) -->
             <input
               type="text"
               class="form-control"
@@ -419,23 +434,25 @@
               aria-label="User Name"
               required
             />
-            <!-- Error message (hidden by default) -->
+            <!-- Validation Error Message (hidden by default) -->
             <div id="nameInputError" class="text-danger mt-2 d-none">
               Please enter a name.
             </div>
           </div>
           <div class="modal-footer">
-            <!-- Submit Button -->
+            <!-- Primary Action Button -->
             <button type="button" class="btn btn-primary" id="submitNameButton">
               Save Name
             </button>
+            <!-- Optional: Add Cancel button here if desired for the edit scenario -->
+            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> -->
           </div>
         </div>
       </div>
     </div>
     <!-- End Name Prompt Modal -->
 
-    <!-- Help/Troubleshooting Modal -->
+    <!-- Help / Troubleshooting Modal -->
     <div
       class="modal fade"
       id="helpModal"
@@ -459,30 +476,14 @@
           <div class="modal-body">
             <h6>Having Issues? Try Refreshing!</h6>
             <p>
-              Sometimes visual glitches or minor bugs might occur (like a widget
-              not appearing correctly after changing modes).
-            </p>
-            <p>
-              Because all your settings (like widget visibility/position, clock
-              format) and data (To-Do list items, Pomodoro state) are stored
-              directly in your browser's local storage,
-              <strong
-                >it is safe to simply refresh the page (F5 or
-                Cmd/Ctrl+R)</strong
-              >.
-            </p>
-            <p>
-              Refreshing will reload the application using your saved data,
-              often resolving temporary display problems without any loss of
-              information.
+              Minor visual glitches might occur. Since settings and data are
+              saved locally,
+              <strong>refreshing the page (F5 or Cmd/Ctrl+R) is safe</strong>
+              and often resolves temporary issues without data loss.
             </p>
             <hr />
             <h6>Found a Bug or Have Feedback?</h6>
-            <p>
-              If refreshing doesn't help or you've found a consistent bug,
-              please report it or provide feedback on the project's GitHub
-              Issues page:
-            </p>
+            <p>If refreshing doesn't help, please report issues on GitHub:</p>
             <p class="text-center">
               <a
                 href="https://github.com/PranavArya37/StayAwake/issues"
@@ -510,32 +511,33 @@
 
     <!-- End Modals Section -->
 
-    <!-- Widgets Section (Positioned absolutely/fixed via CSS and JS) -->
+    <!-- Widgets Section -->
+    <!-- These elements are positioned via CSS (fixed) and their position/visibility is managed by JS -->
 
     <!-- Digital Clock Widget -->
     <div id="digital-clock-widget" class="widget digital-clock-widget">
-      <!-- Widget Header (for dragging and title) -->
+      <!-- Header: Contains title, icon, and drag handle -->
       <div class="widget-header">
         <i class="fas fa-clock widget-icon"></i> Digital Clock
         <div class="widget-drag-handle"></div>
-        <!-- Draggable area within header -->
+        <!-- Area used for dragging -->
       </div>
-      <!-- Widget Content Area -->
+      <!-- Content: Displays the actual clock data -->
       <div class="widget-content">
         <div class="digital-clock-widget-display-container">
-          <!-- Date display (updated by JS) -->
           <span
             id="widget-digital-date-display"
             class="widget-date-display"
           ></span>
-          <!-- Time display (updated by JS) -->
+          <!-- Date (updated by JS) -->
           <span
             id="widget-digital-time-display"
             class="widget-time-display"
           ></span>
+          <!-- Time (updated by JS) -->
         </div>
       </div>
-      <!-- No resize handle for clock widget -->
+      <!-- Clock is not resizable -->
     </div>
     <!-- End Digital Clock Widget -->
 
@@ -546,20 +548,21 @@
         <div class="widget-drag-handle"></div>
       </div>
       <div class="widget-content">
-        <!-- Visual Battery Representation -->
+        <!-- Visual representation -->
         <div class="battery-visual">
           <div class="battery-capsule">
-            <!-- Battery level indicator (height and color updated by JS) -->
+            <!-- Outline -->
             <div id="battery-level" class="battery-level"></div>
+            <!-- Fill level (updated by JS) -->
           </div>
         </div>
-        <!-- Textual Battery Information -->
+        <!-- Textual information -->
         <div class="battery-info">
-          <!-- Percentage display (updated by JS) -->
           <div class="battery-percentage">
             <span id="battery-percentage-value">--</span>%
+            <!-- Percentage (updated by JS) -->
           </div>
-          <!-- Charging status indicator (shown/hidden by JS) -->
+          <!-- Status indicators (visibility toggled by JS) -->
           <div
             id="battery-charging-status"
             class="battery-charging-status"
@@ -567,7 +570,6 @@
           >
             Charging <i class="fas fa-bolt charging-icon"></i>
           </div>
-          <!-- Low battery status indicator (shown/hidden by JS) -->
           <div
             id="battery-low-status"
             class="battery-low-status"
@@ -577,7 +579,7 @@
           </div>
         </div>
       </div>
-      <!-- No resize handle for battery widget -->
+      <!-- Battery is not resizable -->
     </div>
     <!-- End Battery Status Widget -->
 
@@ -587,20 +589,19 @@
         <i class="fas fa-list-check widget-icon"></i> To-Do List
         <div class="widget-drag-handle"></div>
       </div>
+      <!-- Content area for the list itself -->
       <div class="widget-content">
-        <!-- Unordered list where tasks are rendered by JS -->
         <ul id="todo-list" class="todo-list"></ul>
+        <!-- Task items are rendered here by JS -->
       </div>
-      <!-- Widget Footer (for adding new tasks) -->
+      <!-- Footer: Contains input for adding new tasks -->
       <div class="widget-footer">
-        <!-- Input field for new tasks -->
         <input
           type="text"
           id="new-todo-input"
           class="form-control form-control-sm"
           placeholder="Add new task..."
         />
-        <!-- Button to add the task -->
         <button
           id="add-todo-button"
           class="btn btn-sm btn-primary"
@@ -609,7 +610,7 @@
           <i class="fas fa-plus"></i>
         </button>
       </div>
-      <!-- Resize Handle (bottom-right corner) -->
+      <!-- Resize Handle: Allows user to resize this widget -->
       <div class="widget-resize-handle"></div>
     </div>
     <!-- End To-Do List Widget -->
@@ -621,13 +622,13 @@
         <div class="widget-drag-handle"></div>
       </div>
       <div class="widget-content p-3">
-        <!-- Mode Selection Buttons -->
+        <!-- Mode Selection Buttons (Pomodoro, Short Break, Long Break) -->
         <div
           class="pomodoro-modes btn-group w-100 mb-3"
           role="group"
           aria-label="Pomodoro Modes"
         >
-          <!-- JS adds 'active' class to the current mode -->
+          <!-- JS adds 'active' class to the current mode button -->
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary pomodoro-mode-btn active"
@@ -650,15 +651,14 @@
             Long Break (15m)
           </button>
         </div>
-        <!-- Time Display (updated by JS) -->
+        <!-- Time Display (e.g., 25:00, updated by JS) -->
         <div
           id="pomodoro-time-display"
           class="pomodoro-time-display text-center mb-3"
         >
           25:00
-          <!-- Initial display -->
         </div>
-        <!-- Timer Control Buttons (visibility managed by JS) -->
+        <!-- Timer Controls (Start, Pause, Reset - visibility managed by JS) -->
         <div
           id="pomodoro-controls"
           class="pomodoro-controls d-flex justify-content-center gap-2"
@@ -688,21 +688,21 @@
           </button>
         </div>
       </div>
-      <!-- No resize handle for pomodoro widget -->
+      <!-- Pomodoro is not resizable -->
     </div>
     <!-- End Pomodoro Timer Widget -->
 
     <!-- End Widgets Section -->
 
-    <!-- Scripts Section -->
-    <!-- Main application logic (compiled from TypeScript) -->
+    <!-- JavaScript Files -->
+    <!-- Main application script (compiled from TypeScript) -->
     <script type="module" src="./index.js"></script>
-    <!-- Bootstrap JavaScript Bundle (includes Popper) -->
+    <!-- Bootstrap 5 JS Bundle (includes Popper.js for dropdowns, modals, tooltips) -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
       crossorigin="anonymous"
     ></script>
-    <!-- End Scripts Section -->
+    <!-- End Scripts -->
   </body>
 </html>

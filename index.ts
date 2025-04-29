@@ -1,179 +1,151 @@
 import NoSleep from "./nosleep/nosleep.js";
 
 // --- START: Type Definitions ---
-// Defines the structure and events for the Battery Status API manager.
+// (No changes needed here)
 interface BatteryManager extends EventTarget {
   readonly charging: boolean;
   readonly chargingTime: number;
   readonly dischargingTime: number;
-  readonly level: number; // Battery level (0.0 to 1.0)
+  readonly level: number;
   onchargingchange: ((this: BatteryManager, ev: Event) => any) | null;
   onchargingtimechange: ((this: BatteryManager, ev: Event) => any) | null;
   ondischargingtimechange: ((this: BatteryManager, ev: Event) => any) | null;
   onlevelchange: ((this: BatteryManager, ev: Event) => any) | null;
 }
-
-// Defines the structure for the PWA installation prompt event.
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
     outcome: "accepted" | "dismissed";
     platform: string;
   }>;
-  prompt(): Promise<void>; // Method to trigger the install prompt.
+  prompt(): Promise<void>;
 }
-
-// Extends global types for browser features.
 declare global {
   interface Navigator {
-    getBattery?(): Promise<BatteryManager>; // Optional Battery Status API method.
+    getBattery?(): Promise<BatteryManager>;
   }
-  var bootstrap: any; // Declares the Bootstrap global object.
-  // Adds custom PWA events to the window's event map.
+  var bootstrap: any;
   interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
     appinstalled: Event;
   }
 }
-
-// Defines the structure for a single To-Do item.
 interface TodoItem {
-  id: number; // Unique identifier (usually timestamp).
-  text: string; // The task description.
-  completed: boolean; // Whether the task is done.
+  id: number;
+  text: string;
+  completed: boolean;
 }
-
-// Defines the possible modes for the Pomodoro timer.
 type PomodoroMode = "pomodoro" | "shortBreak" | "longBreak";
-
-// Defines the structure for storing the Pomodoro timer's state.
 interface PomodoroState {
-  mode: PomodoroMode; // Current timer mode.
-  remainingTime: number; // Time left in seconds.
-  isRunning: boolean; // Whether the timer is active.
-  lastTickTimestamp?: number; // Timestamp of the last tick (used for calculating elapsed time when page is inactive).
+  mode: PomodoroMode;
+  remainingTime: number;
+  isRunning: boolean;
+  lastTickTimestamp?: number;
 }
-
-// Helper type for mapping class names to arrays of HTML elements.
 interface ElementClassMap {
   [className: string]: (HTMLElement | null)[];
 }
-
-// Helper type for batch adding/removing CSS classes.
 interface ClassesToAddAndRemove {
-  toAdd?: ElementClassMap; // Classes to add.
-  toRemove?: ElementClassMap; // Classes to remove.
+  toAdd?: ElementClassMap;
+  toRemove?: ElementClassMap;
 }
-
-// Defines the structure for storing a widget's position.
 interface WidgetPosition {
-  top: string; // CSS 'top' value (e.g., '100px').
-  left: string; // CSS 'left' value (e.g., '20px').
+  top: string;
+  left: string;
 }
 // --- END: Type Definitions ---
 
 // --- DOM Element Variables ---
-// These variables will hold references to HTML elements fetched from the DOM.
-// Initialized to null, they are populated during the initializeApp function.
+// (Added editNameButton)
 let heroSection: HTMLElement | null = null,
   navbar: HTMLElement | null = null,
   statusText: HTMLElement | null = null,
   favicon: HTMLLinkElement | null = null,
   keepAwakeSwitch: HTMLInputElement | null = null,
-  digitalClockElement: HTMLElement | null = null, // Clock in the main hero section
+  digitalClockElement: HTMLElement | null = null,
   userGreetingElement: HTMLElement | null = null,
   clockFormatSwitch: HTMLInputElement | null = null,
-  // Widget Toggles in Settings Dropdown
+  // Widget Toggles
   showClockWidgetSwitch: HTMLInputElement | null = null,
   showPomodoroWidgetSwitch: HTMLInputElement | null = null,
   showBatteryWidgetSwitch: HTMLInputElement | null = null,
   showTodoWidgetSwitch: HTMLInputElement | null = null,
   minimalModeSwitch: HTMLInputElement | null = null,
-  // Dropdown Action Buttons
+  // Dropdown Buttons
   copyLinkButton: HTMLButtonElement | null = null,
   shareButton: HTMLButtonElement | null = null,
-  installPWAItem: HTMLLIElement | null = null, // List item containing the install button
+  editNameButton: HTMLButtonElement | null = null, // <<< ADDED
+  installPWAItem: HTMLLIElement | null = null,
   installPWAButton: HTMLButtonElement | null = null,
   // Modals
   namePromptModalElement: HTMLElement | null = null,
   userNameInputElement: HTMLInputElement | null = null,
   submitNameButtonElement: HTMLButtonElement | null = null,
   nameInputErrorElement: HTMLElement | null = null,
-  namePromptModalInstance: any | null = null, // Bootstrap modal instance
-  helpModalElement: HTMLElement | null = null, // Help/Troubleshooting modal element
+  namePromptModalInstance: any | null = null,
+  helpModalElement: HTMLElement | null = null,
   // Widget Elements
-  digitalClockWidgetElement: HTMLElement | null = null, // The draggable clock widget itself
-  widgetDigitalDateDisplayElement: HTMLElement | null = null, // Date display inside clock widget
-  widgetDigitalTimeDisplayElement: HTMLElement | null = null, // Time display inside clock widget
+  digitalClockWidgetElement: HTMLElement | null = null,
+  widgetDigitalDateDisplayElement: HTMLElement | null = null,
+  widgetDigitalTimeDisplayElement: HTMLElement | null = null,
   batteryWidgetElement: HTMLElement | null = null,
-  batteryLevelElement: HTMLElement | null = null, // The visual level indicator
-  batteryPercentageValueElement: HTMLElement | null = null, // Text showing percentage
-  batteryChargingStatusElement: HTMLElement | null = null, // "Charging" text/icon
-  batteryLowStatusElement: HTMLElement | null = null, // "Low Battery" text/icon
+  batteryLevelElement: HTMLElement | null = null,
+  batteryPercentageValueElement: HTMLElement | null = null,
+  batteryChargingStatusElement: HTMLElement | null = null,
+  batteryLowStatusElement: HTMLElement | null = null,
   todoWidgetElement: HTMLElement | null = null,
-  todoListElement: HTMLElement | null = null, // The <ul> element
-  newTodoInputElement: HTMLInputElement | null = null, // Input field for new tasks
-  addTodoButtonElement: HTMLButtonElement | null = null, // Button to add tasks
-  todoResizeHandleElement: HTMLElement | null = null, // Resizing handle for To-Do widget
+  todoListElement: HTMLElement | null = null,
+  newTodoInputElement: HTMLInputElement | null = null,
+  addTodoButtonElement: HTMLButtonElement | null = null,
+  todoResizeHandleElement: HTMLElement | null = null,
   pomodoroWidgetElement: HTMLElement | null = null,
-  pomodoroModeButtons: NodeListOf<HTMLButtonElement> | null = null, // Pomodoro, Short Break, Long Break buttons
-  pomodoroTimeDisplayElement: HTMLElement | null = null, // Text showing remaining time
+  pomodoroModeButtons: NodeListOf<HTMLButtonElement> | null = null,
+  pomodoroTimeDisplayElement: HTMLElement | null = null,
   startPomodoroButtonElement: HTMLButtonElement | null = null,
   pausePomodoroButtonElement: HTMLButtonElement | null = null,
   resetPomodoroButtonElement: HTMLButtonElement | null = null,
   // Other Elements
-  infoDisclaimerElement: HTMLElement | null = null; // Disclaimer text at the bottom
+  infoDisclaimerElement: HTMLElement | null = null;
 
 // --- State Variables ---
-// Holds the instance of the NoSleep library.
-let nosleep = new NoSleep();
-// Stores the user's name after they enter it.
-let userName: string | null = null;
-// Holds the interval ID for the main clock update function.
-let clockInterval: number | null = null;
-// Flag to determine if the clock should use 12-hour (true) or 24-hour (false) format.
-let is12HourFormat = false;
-// Flags to control the visibility of each widget.
-let clockWidgetVisible = true;
-let pomodoroVisible = true;
-let batteryVisible = true;
-let todoVisible = true;
-// Flag to hide all widgets for a minimal interface.
-let minimalModeActive = false;
-// Holds the event object for deferred PWA installation prompt.
-let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
-// State variables for dragging each widget.
-let isDraggingClock = false;
-let clockOffsetX = 0; // Horizontal offset from mouse pointer to widget corner
-let clockOffsetY = 0; // Vertical offset from mouse pointer to widget corner
-let isDraggingBattery = false;
-let batteryOffsetX = 0;
-let batteryOffsetY = 0;
-let isDraggingTodo = false;
-let todoOffsetX = 0;
-let todoOffsetY = 0;
-let isDraggingPomodoro = false;
-let pomodoroOffsetX = 0;
-let pomodoroOffsetY = 0;
-// State variables for resizing the To-Do widget.
-let isResizingTodo = false;
-let initialTodoWidth = 0; // Width when resize starts
-let initialTodoHeight = 0; // Height when resize starts
-let initialMouseX = 0; // Mouse X position when resize starts
-let initialMouseY = 0; // Mouse Y position when resize starts
-// Stores the height of the navbar, used for clamping widget positions.
-let navbarHeight = 0;
-// Array to hold the To-Do list items.
+// (No changes needed here)
+let nosleep = new NoSleep(),
+  userName: string | null = null,
+  clockInterval: number | null = null,
+  is12HourFormat = false,
+  clockWidgetVisible = true,
+  pomodoroVisible = true,
+  batteryVisible = true,
+  todoVisible = true,
+  minimalModeActive = false,
+  deferredInstallPrompt: BeforeInstallPromptEvent | null = null,
+  isDraggingClock = false,
+  clockOffsetX = 0,
+  clockOffsetY = 0,
+  isDraggingBattery = false,
+  batteryOffsetX = 0,
+  batteryOffsetY = 0,
+  isDraggingTodo = false,
+  todoOffsetX = 0,
+  todoOffsetY = 0,
+  isDraggingPomodoro = false,
+  pomodoroOffsetX = 0,
+  pomodoroOffsetY = 0,
+  isResizingTodo = false,
+  initialTodoWidth = 0,
+  initialTodoHeight = 0,
+  initialMouseX = 0,
+  initialMouseY = 0,
+  navbarHeight = 0;
 let todos: TodoItem[] = [];
-// State variables for the Pomodoro timer.
-let pomodoroMode: PomodoroMode = "pomodoro"; // Current mode
-let pomodoroTotalDuration: number = 25 * 60; // Total duration for the current mode (in seconds)
-let pomodoroRemainingTime: number = pomodoroTotalDuration; // Time remaining (in seconds)
-let pomodoroInterval: number | null = null; // Interval ID for the timer countdown
-let isPomodoroRunning: boolean = false; // Whether the timer is currently running
+let pomodoroMode: PomodoroMode = "pomodoro",
+  pomodoroTotalDuration: number = 25 * 60,
+  pomodoroRemainingTime: number = pomodoroTotalDuration,
+  pomodoroInterval: number | null = null,
+  isPomodoroRunning: boolean = false;
 
 // --- Constants ---
-// Defines keys used for storing data in localStorage.
+// (No changes needed here)
 const LSK = {
   userName: "stayAwakeUserName",
   clockFormat: "stayAwakeClockFormat",
@@ -189,26 +161,17 @@ const LSK = {
   todoPos: "stayAwakeTodoPos",
   pomodoroPos: "stayAwakePomodoroPos",
 };
-// Current page URL, used for sharing.
 const SITE_URL = window.location.href;
-// Default document title, used for Pomodoro display.
 const SITE_TITLE = document.title;
-// Minimum dimensions for resizable widgets (like To-Do).
 const MIN_WIDGET_WIDTH = 250;
 const MIN_WIDGET_HEIGHT = 180;
-// Padding around the edges of the screen to prevent widgets from being dragged off-screen.
 const WIDGET_POSITION_PADDING = 10;
-// Default durations for Pomodoro timer modes (in seconds).
-const POMODORO_DURATION = 25 * 60; // 25 minutes
-const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes
-const LONG_BREAK_DURATION = 15 * 60; // 15 minutes
+const POMODORO_DURATION = 25 * 60;
+const SHORT_BREAK_DURATION = 5 * 60;
+const LONG_BREAK_DURATION = 15 * 60;
 
 // --- Utility: Safe Element Access ---
-/**
- * Checks if all provided DOM elements were successfully found.
- * @param elements - An object where keys are descriptive names and values are the queried elements or NodeLists.
- * @returns True if all elements are found, false otherwise (logs an error).
- */
+// (No changes needed here)
 function ensureElements(elements: {
   [key: string]:
     | HTMLElement
@@ -218,23 +181,18 @@ function ensureElements(elements: {
 }): boolean {
   for (const key in elements) {
     const el = elements[key];
-    // Check if the element is null or if it's an empty NodeList.
     if (!el || (el instanceof NodeList && el.length === 0)) {
       console.error(
         `Initialization failed: Element(s) for '${key}' not found.`
       );
-      return false; // Stop checking and return false if any element is missing.
+      return false;
     }
   }
-  return true; // All elements were found.
+  return true;
 }
 
 // --- Error Handling ---
-/**
- * Handles errors originating from the NoSleep.js library.
- * Logs the error and resets the UI state related to keeping the screen awake.
- * @param err - The error object caught.
- */
+// (No changes needed here)
 function handleNoSleepError(err: Error | unknown) {
   let message = "NoSleep Error";
   if (err instanceof Error) {
@@ -243,75 +201,50 @@ function handleNoSleepError(err: Error | unknown) {
     message += ": Unknown error occurred.";
   }
   console.error(message, err);
-  // Reset the UI if an error occurs enabling NoSleep.
   if (keepAwakeSwitch) {
-    keepAwakeSwitch.checked = false; // Uncheck the switch.
-    changeBackground(false); // Set background to 'disabled' state.
-    changeStatusText(false); // Set status text to 'Almost sleepy'.
-    changeFavicon(false); // Set favicon to 'disabled' state icon.
+    keepAwakeSwitch.checked = false;
+    changeBackground(false);
+    changeStatusText(false);
+    changeFavicon(false);
   }
 }
 
 // --- UI Toggling & Core Logic ---
-/**
- * Event handler for the main 'Keep Awake' switch.
- * Enables or disables the NoSleep functionality and updates the UI accordingly.
- * @param event - The change event from the switch input.
- */
+// (No changes needed in changeSwitch, changeBackground, changeStatusText, changeFavicon, getGreetingPrefix, updateGreeting)
 function changeSwitch(event: Event) {
   const target = event.target as HTMLInputElement;
-  // Ensure the target is the switch and has a 'checked' property.
   if (target?.checked !== undefined) {
     const isChecked = target.checked;
-    // Asynchronously enable or disable NoSleep.
     const action = isChecked
-      ? nosleep.enable() // Returns a Promise
-      : Promise.resolve(nosleep.disable()); // Wraps disable() in a resolved Promise for consistent handling.
-
+      ? nosleep.enable()
+      : Promise.resolve(nosleep.disable());
     action
       .then(() => {
-        // Update UI elements based on the new state.
         changeBackground(isChecked);
         changeStatusText(isChecked);
         changeFavicon(isChecked);
-        updatePomodoroModeButtonsUI(); // Update Pomodoro button styles based on awake state.
+        updatePomodoroModeButtonsUI();
       })
       .catch((err) => {
-        // Handle potential errors during enable/disable.
         handleNoSleepError(err);
-        // Ensure the switch reflects the failed state if enabling failed.
         if (keepAwakeSwitch) {
           keepAwakeSwitch.checked = false;
         }
       });
   }
 }
-
-/**
- * Changes the background color and highlight colors based on the awake state.
- * Applies appropriate CSS classes to various elements.
- * @param isAwake - True if the screen should be kept awake, false otherwise.
- */
 function changeBackground(isAwake: boolean) {
-  // --- Gather elements that need dynamic highlight color changes ---
-
-  // Base elements that use the primary/secondary highlight text color.
   const baseHighlightTargets: (HTMLElement | null)[] = [];
   if (navbar)
-    baseHighlightTargets.push(navbar.querySelector(".navbar-brand span")); // Span in "Stay Awake"
+    baseHighlightTargets.push(navbar.querySelector(".navbar-brand span"));
   if (userGreetingElement)
-    baseHighlightTargets.push(userGreetingElement.querySelector(".user-name")); // User's name
-  // Find the specific span within the disclaimer for highlighting.
+    baseHighlightTargets.push(userGreetingElement.querySelector(".user-name"));
   const disclaimerHighlightSpan = infoDisclaimerElement?.querySelector("span");
   if (disclaimerHighlightSpan instanceof HTMLElement)
-    baseHighlightTargets.push(disclaimerHighlightSpan); // "foreground" text
-
-  // Ensure we only have unique, non-null elements.
+    baseHighlightTargets.push(disclaimerHighlightSpan);
   const uniqueTextHighlights = Array.from(
     new Set(baseHighlightTargets.filter((el): el is HTMLElement => el !== null))
   );
-
-  // Icons within widget headers.
   const icons: (HTMLElement | null)[] = [];
   [
     digitalClockWidgetElement,
@@ -321,85 +254,56 @@ function changeBackground(isAwake: boolean) {
   ].forEach((widget) => {
     if (widget) icons.push(widget.querySelector(".widget-header .widget-icon"));
   });
-
-  // Buttons that use the primary/secondary background color.
   const generalButtons: (HTMLElement | null)[] = [
-    addTodoButtonElement, // "+" button in To-Do
-    startPomodoroButtonElement, // "Start" button in Pomodoro
+    addTodoButtonElement,
+    startPomodoroButtonElement,
   ];
-
-  // The main status text ("Awake" / "Almost sleepy").
   const statusElement = [statusText];
-
-  // --- Determine which classes to add and remove ---
-
-  // Set background class on the root HTML element.
   const classToAdd = isAwake ? "background-enabled" : "background-disabled";
   const classToRemove = isAwake ? "background-disabled" : "background-enabled";
   document.documentElement.classList.add(classToAdd);
   document.documentElement.classList.remove(classToRemove);
-
-  // Define class mappings for adding/removing based on the awake state.
   const highlightClassMap: ClassesToAddAndRemove = isAwake
     ? {
-        // State: Awake (Green theme)
         toAdd: {
-          "highlight-text": [...uniqueTextHighlights, ...statusElement], // Green text
-          "icon-highlight-primary": icons, // Green icons
-          "button-bg-primary": generalButtons, // Green buttons
+          "highlight-text": [...uniqueTextHighlights, ...statusElement],
+          "icon-highlight-primary": icons,
+          "button-bg-primary": generalButtons,
         },
         toRemove: {
           "secondary-highlight-text": [
-            // Remove blue text
             ...uniqueTextHighlights,
             ...statusElement,
           ],
-          "icon-highlight-secondary": icons, // Remove blue icons
-          "button-bg-secondary": generalButtons, // Remove blue buttons
+          "icon-highlight-secondary": icons,
+          "button-bg-secondary": generalButtons,
         },
       }
     : {
-        // State: Almost Sleepy (Blue theme)
         toAdd: {
           "secondary-highlight-text": [
-            // Blue text
             ...uniqueTextHighlights,
             ...statusElement,
           ],
-          "icon-highlight-secondary": icons, // Blue icons
-          "button-bg-secondary": generalButtons, // Blue buttons
+          "icon-highlight-secondary": icons,
+          "button-bg-secondary": generalButtons,
         },
         toRemove: {
-          "highlight-text": [...uniqueTextHighlights, ...statusElement], // Remove green text
-          "icon-highlight-primary": icons, // Remove green icons
-          "button-bg-primary": generalButtons, // Remove green buttons
+          "highlight-text": [...uniqueTextHighlights, ...statusElement],
+          "icon-highlight-primary": icons,
+          "button-bg-primary": generalButtons,
         },
       };
-
-  // Apply the class changes using the helper function.
   addRemoveClassesOfMultipleElements(highlightClassMap);
-
-  // Ensure Pomodoro mode buttons also reflect the current theme.
   updatePomodoroModeButtonsUI();
 }
-
-/**
- * Updates the main status text in the hero section.
- * @param isAwake - True to display "Awake", false for "Almost sleepy".
- */
 function changeStatusText(isAwake: boolean) {
   if (statusText) {
     statusText.innerText = isAwake ? "Awake" : "Almost sleepy";
-    // Toggle the appropriate highlight class based on the state.
-    statusText.classList.toggle("highlight-text", isAwake); // Green if awake
-    statusText.classList.toggle("secondary-highlight-text", !isAwake); // Blue if not awake
+    statusText.classList.toggle("highlight-text", isAwake);
+    statusText.classList.toggle("secondary-highlight-text", !isAwake);
   }
 }
-
-/**
- * Changes the website's favicon based on the awake state.
- * @param isAwake - True for the green favicon, false for the blue one.
- */
 function changeFavicon(isAwake: boolean) {
   if (favicon) {
     favicon.href = isAwake
@@ -407,128 +311,74 @@ function changeFavicon(isAwake: boolean) {
       : "./favicon/favicon_blue.ico";
   }
 }
-
-/**
- * Determines the appropriate greeting prefix based on the current hour.
- * @returns "Good Morning", "Good Afternoon", or "Good Evening".
- */
 function getGreetingPrefix(): string {
-  const h = new Date().getHours(); // Get current hour (0-23)
+  const h = new Date().getHours();
   return h >= 5 && h < 12
     ? "Good Morning"
     : h >= 12 && h < 18
     ? "Good Afternoon"
     : "Good Evening";
 }
-
-/**
- * Updates the greeting message displayed in the hero section.
- * Includes the user's name if available.
- */
 function updateGreeting() {
   if (userGreetingElement && userName) {
-    // If user name exists, personalize the greeting.
     userGreetingElement.innerHTML = `${getGreetingPrefix()}, <span class="user-name">${userName}</span>!`;
-    // Re-apply background/highlight colors, ensuring the name gets the correct style.
     if (keepAwakeSwitch) changeBackground(keepAwakeSwitch.checked);
   } else if (userGreetingElement) {
-    // If no user name, display a generic greeting.
     userGreetingElement.innerHTML = getGreetingPrefix() + "!";
   }
 }
-
-/**
- * Formats the time part of a Date object.
- * @param d - The Date object.
- * @param h12 - True for 12-hour format (AM/PM), false for 24-hour format.
- * @returns Formatted time string (e.g., "02:30:15 PM" or "14:30:15").
- */
+// (No changes needed in formatTimePart, formatDatePart, updateClock, handleClockFormatToggle)
 function formatTimePart(d: Date, h12: boolean): string {
   return d.toLocaleTimeString(h12 ? "en-US" : "en-GB", {
-    // Use appropriate locale for format
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: h12,
   });
 }
-
-/**
- * Formats the date part of a Date object.
- * @param d - The Date object.
- * @returns Formatted date string (e.g., "Wednesday, March 20, 2024").
- */
 function formatDatePart(d: Date): string {
   return d.toLocaleDateString("en-US", {
-    // Using en-US for a common format
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 }
-
-/**
- * Updates the digital clock display(s) every second.
- * Updates both the main hero clock and the clock widget.
- * Also triggers a greeting update at the top of the hour.
- */
 function updateClock() {
   const now = new Date();
   const formattedTime = formatTimePart(now, is12HourFormat);
   const formattedDate = formatDatePart(now);
-
-  // Update the main hero clock (Date + Time).
   const fullDateTimeString = `${formattedDate}, ${formattedTime}`;
   if (digitalClockElement) {
     digitalClockElement.innerText = fullDateTimeString;
   }
-
-  // Update the draggable clock widget (separate Date and Time lines).
   if (widgetDigitalDateDisplayElement) {
     widgetDigitalDateDisplayElement.innerText = formattedDate;
   }
   if (widgetDigitalTimeDisplayElement) {
     widgetDigitalTimeDisplayElement.innerText = formattedTime;
   }
-
-  // Check if it's the start of a new hour to update the greeting.
   if (now.getMinutes() === 0 && now.getSeconds() === 0) {
     updateGreeting();
   }
 }
-
-/**
- * Event handler for the 12/24-hour format toggle switch in settings.
- * Updates the state, saves the preference to localStorage, and refreshes the clock display.
- * @param e - The change event from the switch input.
- */
 function handleClockFormatToggle(e: Event) {
   const t = e.target as HTMLInputElement;
   if (t) {
-    is12HourFormat = t.checked; // Update the state variable.
-    // Save the preference.
+    is12HourFormat = t.checked;
     localStorage.setItem(LSK.clockFormat, is12HourFormat ? "12h" : "24h");
-    updateClock(); // Immediately update the clock display.
+    updateClock();
   }
 }
 
 // --- Widget Visibility ---
-/**
- * Applies the current visibility settings to all widgets.
- * Considers both individual widget toggles and the "Minimal Mode" switch.
- * Also disables individual toggles when Minimal Mode is active.
- */
+// (No changes needed in applyAllWidgetVisibilities, handleShowClockToggle, handleShowPomodoroToggle, handleShowBatteryToggle, handleShowTodoToggle, handleMinimalModeToggle)
 function applyAllWidgetVisibilities() {
-  const hideAllWidgets = minimalModeActive; // Check if minimal mode is on.
-
-  // Determine visibility for each widget based on its own toggle AND minimal mode.
+  const hideAllWidgets = minimalModeActive;
   const shouldShowClock = !hideAllWidgets && clockWidgetVisible;
   const shouldShowPomodoro = !hideAllWidgets && pomodoroVisible;
   const shouldShowBattery = !hideAllWidgets && batteryVisible;
   const shouldShowTodo = !hideAllWidgets && todoVisible;
-
-  // Toggle the 'widget-hidden' class based on calculated visibility.
   digitalClockWidgetElement?.classList.toggle(
     "widget-hidden",
     !shouldShowClock
@@ -536,8 +386,6 @@ function applyAllWidgetVisibilities() {
   pomodoroWidgetElement?.classList.toggle("widget-hidden", !shouldShowPomodoro);
   batteryWidgetElement?.classList.toggle("widget-hidden", !shouldShowBattery);
   todoWidgetElement?.classList.toggle("widget-hidden", !shouldShowTodo);
-
-  // Disable individual widget toggle switches if minimal mode is active.
   const disableIndividualToggles = minimalModeActive;
   [
     showClockWidgetSwitch,
@@ -547,29 +395,19 @@ function applyAllWidgetVisibilities() {
   ].forEach((widgetSwitch) => {
     if (widgetSwitch) {
       widgetSwitch.disabled = disableIndividualToggles;
-      // Add opacity to visually indicate they are disabled.
       widgetSwitch
         .closest(".form-check")
         ?.classList.toggle("opacity-50", disableIndividualToggles);
     }
   });
-
-  // Special handling for Pomodoro: ensure display/title updates if visible.
   if (shouldShowPomodoro) {
-    updatePomodoroDisplay(); // Refresh display if it becomes visible.
+    updatePomodoroDisplay();
   } else {
-    // If Pomodoro is hidden, reset the document title if it was showing timer info.
     if (document.title.includes("Focus") || document.title.includes("Break")) {
       document.title = SITE_TITLE;
     }
   }
 }
-
-/**
- * Event handler for the "Show Clock" toggle switch.
- * Updates state, saves preference, and applies visibility changes.
- * @param event - The change event.
- */
 function handleShowClockToggle(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target) {
@@ -578,15 +416,9 @@ function handleShowClockToggle(event: Event) {
       LSK.clockWidgetVisible,
       clockWidgetVisible ? "true" : "false"
     );
-    applyAllWidgetVisibilities(); // Re-evaluate and apply visibility to all widgets.
+    applyAllWidgetVisibilities();
   }
 }
-
-/**
- * Event handler for the "Show Pomodoro" toggle switch.
- * Updates state, saves preference, and applies visibility changes.
- * @param event - The change event.
- */
 function handleShowPomodoroToggle(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target) {
@@ -598,12 +430,6 @@ function handleShowPomodoroToggle(event: Event) {
     applyAllWidgetVisibilities();
   }
 }
-
-/**
- * Event handler for the "Show Battery" toggle switch.
- * Updates state, saves preference, and applies visibility changes.
- * @param event - The change event.
- */
 function handleShowBatteryToggle(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target) {
@@ -612,12 +438,6 @@ function handleShowBatteryToggle(event: Event) {
     applyAllWidgetVisibilities();
   }
 }
-
-/**
- * Event handler for the "Show To-Do List" toggle switch.
- * Updates state, saves preference, and applies visibility changes.
- * @param event - The change event.
- */
 function handleShowTodoToggle(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target) {
@@ -626,12 +446,6 @@ function handleShowTodoToggle(event: Event) {
     applyAllWidgetVisibilities();
   }
 }
-
-/**
- * Event handler for the "Minimal Mode" toggle switch.
- * Updates state, saves preference, and applies visibility changes.
- * @param event - The change event.
- */
 function handleMinimalModeToggle(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target) {
@@ -640,39 +454,41 @@ function handleMinimalModeToggle(event: Event) {
       LSK.minimalModeActive,
       minimalModeActive ? "true" : "false"
     );
-    applyAllWidgetVisibilities(); // Re-evaluate all widget visibilities.
+    applyAllWidgetVisibilities();
   }
 }
 
-// --- Name Prompt ---
+// --- Name Prompt & Edit ---
+// (handleNameSubmit and handleEnterKey remain the same)
+// (promptForName gets slightly modified to ensure modal instance is ready)
+
 /**
  * Handles the submission of the user's name from the prompt modal.
  * Validates input, saves to localStorage, updates greeting, and hides the modal.
+ * (Used for both initial prompt and editing name)
  */
 function handleNameSubmit() {
-  const n = userNameInputElement?.value.trim(); // Get trimmed input value.
-  // Check if name is entered and elements exist.
+  const n = userNameInputElement?.value.trim();
   if (n && userNameInputElement && nameInputErrorElement) {
-    userName = n; // Update state variable.
-    localStorage.setItem(LSK.userName, n); // Save to localStorage.
-    updateGreeting(); // Update the greeting display.
-    // Reset error state and hide modal.
+    userName = n;
+    localStorage.setItem(LSK.userName, n);
+    updateGreeting();
     nameInputErrorElement.classList.add("d-none");
     userNameInputElement.classList.remove("is-invalid");
     namePromptModalInstance?.hide();
   } else if (userNameInputElement && nameInputErrorElement) {
-    // Show error message if name is empty.
     nameInputErrorElement.classList.remove("d-none");
     userNameInputElement.classList.add("is-invalid");
-    userNameInputElement.focus(); // Set focus back to the input field.
+    userNameInputElement.focus();
   }
 }
 
 /**
- * Initializes and shows the name prompt modal if the user's name is not already stored.
+ * Initializes and optionally shows the name prompt modal.
+ * Ensures the modal instance and listeners are set up, needed for both initial prompt and editing.
+ * @param show - If true, shows the modal immediately (used for initial prompt).
  */
-function promptForName() {
-  // Get modal-related elements.
+function initializeAndMaybeShowNamePrompt(show: boolean = false) {
   namePromptModalElement = document.getElementById("namePromptModal");
   userNameInputElement = document.getElementById(
     "userNameInput"
@@ -682,7 +498,6 @@ function promptForName() {
   ) as HTMLButtonElement | null;
   nameInputErrorElement = document.getElementById("nameInputError");
 
-  // Ensure all necessary elements for the modal are present.
   if (
     ensureElements({
       namePromptModalElement,
@@ -691,30 +506,34 @@ function promptForName() {
       nameInputErrorElement,
     })
   ) {
-    // Get or create a Bootstrap modal instance.
-    namePromptModalInstance = bootstrap.Modal.getOrCreateInstance(
-      namePromptModalElement!
-    );
+    // Get or create instance if it doesn't exist yet
+    if (!namePromptModalInstance) {
+      namePromptModalInstance = bootstrap.Modal.getOrCreateInstance(
+        namePromptModalElement!
+      );
+      // Attach listeners only once when the instance is first created
+      submitNameButtonElement!.addEventListener("click", handleNameSubmit);
+      userNameInputElement!.addEventListener("keypress", handleEnterKey);
+      namePromptModalElement!.addEventListener(
+        "shown.bs.modal",
+        () => userNameInputElement?.focus()
+        // { once: true } // Remove 'once' so focus works on subsequent shows
+      );
+    }
 
-    // Add event listeners (remove first to prevent duplicates if called again).
-    submitNameButtonElement!.removeEventListener("click", handleNameSubmit);
-    submitNameButtonElement!.addEventListener("click", handleNameSubmit);
-    userNameInputElement!.removeEventListener("keypress", handleEnterKey); // For Enter key submission
-    userNameInputElement!.addEventListener("keypress", handleEnterKey);
-
-    // Set focus to the input field when the modal is shown.
-    namePromptModalElement!.addEventListener(
-      "shown.bs.modal",
-      () => userNameInputElement?.focus(),
-      { once: true } // Ensure this listener runs only once per show.
-    );
-
-    // Show the modal.
-    namePromptModalInstance?.show();
+    // Show the modal if requested (for initial prompt)
+    if (show) {
+      userNameInputElement!.value = ""; // Clear input for initial prompt
+      nameInputErrorElement?.classList.add("d-none"); // Ensure error is hidden
+      userNameInputElement!.classList.remove("is-invalid"); // Ensure input is not marked invalid
+      namePromptModalInstance?.show();
+    }
   } else {
-    // Log error if modal elements are missing and proceed without a name.
     console.error("Cannot initialize name prompt: Modal elements missing.");
-    updateGreeting(); // Update greeting without a name.
+    // If initialization fails, update greeting without a name if needed
+    if (!userName) {
+      updateGreeting();
+    }
   }
 }
 
@@ -723,20 +542,40 @@ function promptForName() {
  * @param e - The KeyboardEvent object.
  */
 function handleEnterKey(e: KeyboardEvent) {
-  // Check if Enter was pressed and the input field has focus.
   if (e.key === "Enter" && userNameInputElement === document.activeElement) {
-    e.preventDefault(); // Prevent default form submission behavior.
-    handleNameSubmit(); // Trigger the name submission logic.
+    e.preventDefault();
+    handleNameSubmit();
+  }
+}
+
+/**
+ * <<< NEW FUNCTION >>>
+ * Handles the click event for the "Edit Name" button.
+ * Pre-fills the name input and shows the name prompt modal.
+ */
+function handleEditNameClick() {
+  // Ensure modal instance and input element exist
+  if (namePromptModalInstance && userNameInputElement) {
+    // Pre-fill the input with the current name
+    userNameInputElement.value = userName || ""; // Use current name or empty string if somehow null
+    // Ensure error state is cleared
+    nameInputErrorElement?.classList.add("d-none");
+    userNameInputElement.classList.remove("is-invalid");
+    // Show the modal
+    namePromptModalInstance.show();
+    // Focus might already be handled by the persistent 'shown.bs.modal' listener
+  } else {
+    console.error(
+      "Cannot open edit name modal: Instance or input element not found."
+    );
+    // Fallback: Try to initialize and show (will clear input, less ideal)
+    initializeAndMaybeShowNamePrompt(true);
   }
 }
 
 // --- Battery Functions ---
-/**
- * Updates the battery widget's UI based on the provided battery manager state.
- * @param battery - The BatteryManager object containing current battery info.
- */
+// (No changes needed here)
 function updateBatteryUI(battery: BatteryManager) {
-  // Ensure required elements are present.
   if (
     !batteryLevelElement ||
     !batteryPercentageValueElement ||
@@ -744,46 +583,28 @@ function updateBatteryUI(battery: BatteryManager) {
     !batteryLowStatusElement
   )
     return;
-
-  const level = battery.level; // Battery level (0.0 to 1.0)
-  const percentage = Math.round(level * 100); // Convert to percentage
-  const isCharging = battery.charging; // Is the device charging?
-  const isLow = !isCharging && level <= 0.2; // Is battery low (and not charging)?
-
-  // Update percentage text.
+  const level = battery.level;
+  const percentage = Math.round(level * 100);
+  const isCharging = battery.charging;
+  const isLow = !isCharging && level <= 0.2;
   batteryPercentageValueElement.innerText = percentage.toString();
-  // Update visual battery level height.
   batteryLevelElement.style.height = `${percentage}%`;
-
-  // Update visual battery level color based on percentage.
   batteryLevelElement.classList.remove(
     "level-low",
     "level-medium",
     "level-high"
   );
-  if (level <= 0.2) batteryLevelElement.classList.add("level-low"); // Red
-  else if (level <= 0.5)
-    batteryLevelElement.classList.add("level-medium"); // Orange
-  else batteryLevelElement.classList.add("level-high"); // Green
-
-  // Show/hide charging status indicator.
+  if (level <= 0.2) batteryLevelElement.classList.add("level-low");
+  else if (level <= 0.5) batteryLevelElement.classList.add("level-medium");
+  else batteryLevelElement.classList.add("level-high");
   batteryChargingStatusElement.style.display = isCharging ? "block" : "none";
-  // Show/hide low battery warning (only if not charging).
   batteryLowStatusElement.style.display = isLow ? "block" : "none";
 }
-
-/**
- * Initializes the battery status indicator widget.
- * Checks for API support, fetches battery status, sets up event listeners,
- * and handles cases where the API is not supported or fails.
- */
 function initializeBatteryIndicator() {
-  // Check if the Battery Status API is supported by the browser.
   if ("getBattery" in navigator && typeof navigator.getBattery === "function") {
     navigator
-      .getBattery() // Returns a Promise that resolves with the BatteryManager.
+      .getBattery()
       .then((batteryManager: BatteryManager) => {
-        // Get battery widget elements.
         batteryWidgetElement = document.getElementById("battery-widget");
         batteryLevelElement = document.getElementById("battery-level");
         batteryPercentageValueElement = document.getElementById(
@@ -793,8 +614,6 @@ function initializeBatteryIndicator() {
           "battery-charging-status"
         );
         batteryLowStatusElement = document.getElementById("battery-low-status");
-
-        // Ensure all necessary elements for the widget exist.
         if (
           ensureElements({
             batteryWidgetElement,
@@ -804,18 +623,13 @@ function initializeBatteryIndicator() {
             batteryLowStatusElement,
           })
         ) {
-          // Initial UI update.
           updateBatteryUI(batteryManager);
-
-          // Add event listeners to update UI when battery status changes.
           batteryManager.addEventListener("levelchange", () =>
             updateBatteryUI(batteryManager)
           );
           batteryManager.addEventListener("chargingchange", () =>
             updateBatteryUI(batteryManager)
           );
-
-          // Add pointer down listener to the header for dragging.
           const header = batteryWidgetElement!.querySelector(
             ".widget-header"
           ) as HTMLElement | null;
@@ -823,19 +637,15 @@ function initializeBatteryIndicator() {
             header.addEventListener("pointerdown", handleBatteryPointerDown);
           else console.error("Battery widget header not found!");
         } else {
-          // Log error and hide widget if elements are missing.
           console.error("Battery widget init failed: elements missing.");
           if (batteryWidgetElement)
             batteryWidgetElement.classList.add("widget-hidden");
         }
       })
       .catch((error: unknown) => {
-        // Handle errors during API access (e.g., permission denied).
         let message = "Battery API error";
         if (error instanceof Error) message += `: ${error.message}`;
         console.error(message, error);
-
-        // Hide the widget and disable its toggle in settings.
         const widget = document.getElementById("battery-widget");
         if (widget) widget.classList.add("widget-hidden");
         if (showBatteryWidgetSwitch) {
@@ -844,16 +654,14 @@ function initializeBatteryIndicator() {
           showBatteryWidgetSwitch
             .closest(".form-check")
             ?.classList.add("opacity-50");
-          batteryVisible = false; // Update state.
-          localStorage.setItem(LSK.batteryVisible, "false"); // Persist state.
-          applyAllWidgetVisibilities(); // Update UI.
+          batteryVisible = false;
+          localStorage.setItem(LSK.batteryVisible, "false");
+          applyAllWidgetVisibilities();
         }
       });
   } else {
-    // Handle case where the Battery API is not supported.
     console.warn("Battery API not supported.");
     const widget = document.getElementById("battery-widget");
-    // Hide the widget and disable its toggle.
     if (widget) widget.classList.add("widget-hidden");
     if (showBatteryWidgetSwitch) {
       showBatteryWidgetSwitch.checked = false;
@@ -869,16 +677,12 @@ function initializeBatteryIndicator() {
 }
 
 // --- To-Do List Functions ---
-/**
- * Loads the To-Do list items from localStorage.
- * Handles potential parsing errors and validates data structure.
- */
+// (No changes needed here)
 function loadTodos() {
-  const s = localStorage.getItem(LSK.todos); // Get raw string data.
+  const s = localStorage.getItem(LSK.todos);
   try {
     if (s) {
-      const p = JSON.parse(s); // Attempt to parse JSON.
-      // Validate if the parsed data is an array of valid TodoItem objects.
+      const p = JSON.parse(s);
       if (
         Array.isArray(p) &&
         p.every(
@@ -890,51 +694,34 @@ function loadTodos() {
             typeof i.completed === "boolean"
         )
       ) {
-        todos = p; // Assign validated data to the state array.
+        todos = p;
       } else {
-        // If data is invalid, reset to an empty array and clear localStorage.
-        console.warn("Invalid To-Do data found in localStorage. Resetting.");
+        console.warn("Invalid To-Do data. Resetting.");
         todos = [];
         localStorage.removeItem(LSK.todos);
       }
     } else {
-      // If no data found, initialize with an empty array.
       todos = [];
     }
   } catch (e) {
-    // Handle JSON parsing errors.
-    console.error("Error parsing todos from localStorage:", e);
-    todos = []; // Reset state.
-    localStorage.removeItem(LSK.todos); // Clear potentially corrupt data.
+    console.error("Error parsing todos:", e);
+    todos = [];
+    localStorage.removeItem(LSK.todos);
   }
 }
-
-/**
- * Saves the current To-Do list array to localStorage.
- */
 function saveTodos() {
   try {
     localStorage.setItem(LSK.todos, JSON.stringify(todos));
   } catch (e) {
-    console.error("Error saving todos to localStorage:", e);
-    // Could potentially implement more robust error handling here (e.g., retry, notify user).
+    console.error("Error saving todos:", e);
   }
 }
-
-/**
- * Renders the To-Do list items in the widget's UI.
- * Clears the existing list and rebuilds it based on the `todos` array.
- */
 function renderTodos() {
-  // Ensure the list element exists.
   if (!todoListElement) {
     console.error("Cannot render todos: todoListElement not found.");
     return;
   }
-  // Clear the current list content.
   todoListElement.innerHTML = "";
-
-  // Display a message if the list is empty.
   if (todos.length === 0) {
     const li = document.createElement("li");
     li.textContent = "No tasks yet!";
@@ -944,96 +731,60 @@ function renderTodos() {
     todoListElement!.appendChild(li);
     return;
   }
-
-  // Create and append list items for each todo.
   todos.forEach((todo) => {
     const li = document.createElement("li");
     li.className = "todo-item";
-    li.dataset.id = String(todo.id); // Store ID for later reference.
+    li.dataset.id = String(todo.id);
     if (todo.completed) {
-      li.classList.add("completed"); // Add class for styling completed tasks.
+      li.classList.add("completed");
     }
-
-    // Create checkbox for marking tasks complete/incomplete.
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.checked = todo.completed;
-    cb.addEventListener("change", () => toggleTodo(todo.id)); // Add event listener.
+    cb.addEventListener("change", () => toggleTodo(todo.id));
     cb.setAttribute(
-      "aria-label", // Accessibility label.
+      "aria-label",
       `Mark task "${todo.text}" as ${
         todo.completed ? "incomplete" : "complete"
       }`
     );
-
-    // Create span to display the task text.
     const span = document.createElement("span");
     span.textContent = todo.text;
-
-    // Create delete button.
     const btn = document.createElement("button");
     btn.className = "delete-todo-btn";
-    btn.innerHTML = '<i class="fas fa-trash-alt" aria-hidden="true"></i>'; // Font Awesome trash icon.
-    btn.title = `Delete task "${todo.text}"`; // Tooltip.
-    btn.setAttribute("aria-label", `Delete task "${todo.text}"`); // Accessibility label.
-    btn.addEventListener("click", () => deleteTodo(todo.id)); // Add event listener.
-
-    // Append elements to the list item.
+    btn.innerHTML = '<i class="fas fa-trash-alt" aria-hidden="true"></i>';
+    btn.title = `Delete task "${todo.text}"`;
+    btn.setAttribute("aria-label", `Delete task "${todo.text}"`);
+    btn.addEventListener("click", () => deleteTodo(todo.id));
     li.append(cb, span, btn);
-    // Append the list item to the main list element.
     todoListElement!.appendChild(li);
   });
 }
-
-/**
- * Adds a new To-Do item to the list based on the input field's value.
- */
 function addTodo() {
-  const t = newTodoInputElement?.value.trim(); // Get trimmed text from input.
+  const t = newTodoInputElement?.value.trim();
   if (t && newTodoInputElement) {
-    // Add new todo object to the array.
     todos.push({ id: Date.now(), text: t, completed: false });
-    saveTodos(); // Persist changes.
-    renderTodos(); // Update the UI.
-    newTodoInputElement.value = ""; // Clear the input field.
-    newTodoInputElement.focus(); // Set focus back to the input field for easy adding.
+    saveTodos();
+    renderTodos();
+    newTodoInputElement.value = "";
+    newTodoInputElement.focus();
   } else if (newTodoInputElement) {
-    // If input is empty, just focus the input field.
     newTodoInputElement.focus();
   }
 }
-
-/**
- * Toggles the completion status of a To-Do item.
- * @param id - The ID of the To-Do item to toggle.
- */
 function toggleTodo(id: number) {
-  // Find the todo and update its 'completed' status.
   todos = todos.map((t) =>
     t.id === id ? { ...t, completed: !t.completed } : t
   );
-  saveTodos(); // Persist changes.
-  renderTodos(); // Update the UI.
+  saveTodos();
+  renderTodos();
 }
-
-/**
- * Deletes a To-Do item from the list.
- * @param id - The ID of the To-Do item to delete.
- */
 function deleteTodo(id: number) {
-  // Filter out the todo with the matching ID.
   todos = todos.filter((t) => t.id !== id);
-  saveTodos(); // Persist changes.
-  renderTodos(); // Update the UI.
+  saveTodos();
+  renderTodos();
 }
-
-/**
- * Initializes the To-Do list widget.
- * Fetches elements, loads data, sets up event listeners for adding,
- * dragging, and resizing.
- */
 function initializeTodoList() {
-  // Get To-Do widget elements.
   todoWidgetElement = document.getElementById("todo-widget");
   todoListElement = document.getElementById(
     "todo-list"
@@ -1044,50 +795,38 @@ function initializeTodoList() {
   addTodoButtonElement = document.getElementById(
     "add-todo-button"
   ) as HTMLButtonElement | null;
-
   if (todoWidgetElement) {
-    // Find the resize handle within the widget.
     todoResizeHandleElement = todoWidgetElement.querySelector(
       ".widget-resize-handle"
     ) as HTMLElement | null;
-
-    // Ensure all necessary elements exist.
     if (
       ensureElements({
         todoWidgetElement,
         todoListElement,
         newTodoInputElement,
         addTodoButtonElement,
-        todoResizeHandleElement, // Check for resize handle too.
+        todoResizeHandleElement,
       })
     ) {
-      loadTodos(); // Load saved tasks.
-      renderTodos(); // Display tasks.
-
-      // Add event listener for the "Add Task" button.
+      loadTodos();
+      renderTodos();
       addTodoButtonElement!.addEventListener("click", addTodo);
-      // Add event listener for pressing Enter in the input field.
       newTodoInputElement!.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
-          event.preventDefault(); // Prevent default form submission.
+          event.preventDefault();
           addTodo();
         }
       });
-
-      // Add listener for dragging the widget header.
       const header = todoWidgetElement.querySelector(
         ".widget-header"
       ) as HTMLElement | null;
       if (header) header.addEventListener("pointerdown", handleTodoPointerDown);
       else console.error("To-Do widget header not found!");
-
-      // Add listener for resizing the widget.
       todoResizeHandleElement!.addEventListener(
         "pointerdown",
         handleTodoResizePointerDown
       );
     } else {
-      // Log error and hide widget if elements are missing.
       console.error("To-Do init failed: elements missing.");
       if (todoWidgetElement) todoWidgetElement.classList.add("widget-hidden");
     }
@@ -1097,82 +836,51 @@ function initializeTodoList() {
 }
 
 // --- Pomodoro Timer Functions ---
-/**
- * Formats remaining seconds into MM:SS format.
- * @param s - Time in seconds.
- * @returns Formatted string "MM:SS".
- */
+// (No changes needed here)
 function formatPomodoroTime(s: number): string {
-  const m = Math.floor(s / 60); // Calculate minutes.
-  const c = s % 60; // Calculate remaining seconds.
-  // Pad with leading zeros if necessary.
+  const m = Math.floor(s / 60);
+  const c = s % 60;
   return `${String(m).padStart(2, "0")}:${String(c).padStart(2, "0")}`;
 }
-
-/**
- * Updates the Pomodoro timer display in the widget and the browser tab title.
- */
 function updatePomodoroDisplay() {
   if (pomodoroTimeDisplayElement) {
-    // Update the time display inside the widget.
     pomodoroTimeDisplayElement.innerText = formatPomodoroTime(
       pomodoroRemainingTime
     );
-
-    // Check if the widget is currently visible.
     const isPomodoroWidgetVisible =
       !pomodoroWidgetElement?.classList.contains("widget-hidden");
-
-    // Update the document title if the timer is running and the widget is visible.
     if (isPomodoroRunning && isPomodoroWidgetVisible) {
-      const modeText = pomodoroMode === "pomodoro" ? "Focus" : "Break"; // "Focus" or "Break"
+      const modeText = pomodoroMode === "pomodoro" ? "Focus" : "Break";
       document.title = `${formatPomodoroTime(
         pomodoroRemainingTime
       )} - ${modeText} | ${SITE_TITLE}`;
     } else {
-      // Reset the title if the timer isn't running or the widget is hidden.
       if (document.title !== SITE_TITLE) {
         document.title = SITE_TITLE;
       }
     }
   }
 }
-
-/**
- * Updates the visibility of the Pomodoro control buttons (Start, Pause, Reset).
- */
 function updatePomodoroControls() {
   if (
     !startPomodoroButtonElement ||
     !pausePomodoroButtonElement ||
     !resetPomodoroButtonElement
   )
-    return; // Exit if buttons aren't found.
-
-  // Determine which buttons should be shown based on the timer state.
-  const ss = !isPomodoroRunning; // Show Start if not running.
-  const sp = isPomodoroRunning; // Show Pause if running.
-  // Show Reset if paused OR if stopped but not at the full duration (i.e., can be reset).
+    return;
+  const ss = !isPomodoroRunning;
+  const sp = isPomodoroRunning;
   const sr =
     sp || (!isPomodoroRunning && pomodoroRemainingTime < pomodoroTotalDuration);
-
-  // Toggle button visibility using inline display style.
   startPomodoroButtonElement.style.display = ss ? "inline-block" : "none";
   pausePomodoroButtonElement.style.display = sp ? "inline-block" : "none";
   resetPomodoroButtonElement.style.display = sr ? "inline-block" : "none";
 }
-
-/**
- * Saves the current state of the Pomodoro timer to localStorage.
- * Includes mode, remaining time, running status, and last tick timestamp.
- */
 function savePomodoroState() {
-  // Construct the state object.
   const s: PomodoroState = {
     mode: pomodoroMode,
     remainingTime: pomodoroRemainingTime,
     isRunning: isPomodoroRunning,
-    // Store timestamp only if running, to calculate elapsed time later.
     lastTickTimestamp: isPomodoroRunning ? Date.now() : undefined,
   };
   try {
@@ -1181,99 +889,66 @@ function savePomodoroState() {
     console.error("Error saving Pomodoro state:", e);
   }
 }
-
-/**
- * Loads the Pomodoro timer state from localStorage.
- * Validates the loaded data and calculates elapsed time if the timer was running
- * when the page was closed/reloaded.
- */
 function loadPomodoroState() {
-  const j = localStorage.getItem(LSK.pomodoroState); // Get raw JSON string.
-  let l = false; // Flag to track if loading was successful.
-
+  const j = localStorage.getItem(LSK.pomodoroState);
+  let l = false;
   if (j) {
     try {
-      const s: PomodoroState = JSON.parse(j); // Parse JSON.
-      // Validate the structure and types of the loaded state.
+      const s: PomodoroState = JSON.parse(j);
       if (
         s &&
         typeof s === "object" &&
-        ["pomodoro", "shortBreak", "longBreak"].includes(s.mode) && // Valid mode?
-        typeof s.remainingTime === "number" && // Valid time?
-        typeof s.isRunning === "boolean" && // Valid running state?
-        // Valid timestamp (either undefined or a number)?
+        ["pomodoro", "shortBreak", "longBreak"].includes(s.mode) &&
+        typeof s.remainingTime === "number" &&
+        typeof s.isRunning === "boolean" &&
         (s.lastTickTimestamp === undefined ||
           typeof s.lastTickTimestamp === "number")
       ) {
-        // Restore state variables from loaded data.
         pomodoroMode = s.mode;
         pomodoroRemainingTime = s.remainingTime;
         isPomodoroRunning = s.isRunning;
-
-        // If the timer was running when saved, calculate elapsed time.
         if (isPomodoroRunning && s.lastTickTimestamp) {
-          const n = Date.now(); // Current time.
-          const e = Math.floor((n - s.lastTickTimestamp) / 1000); // Elapsed seconds.
-          pomodoroRemainingTime = Math.max(0, pomodoroRemainingTime - e); // Subtract elapsed time.
-
-          // If the timer finished while the page was inactive.
+          const n = Date.now();
+          const e = Math.floor((n - s.lastTickTimestamp) / 1000);
+          pomodoroRemainingTime = Math.max(0, pomodoroRemainingTime - e);
           if (pomodoroRemainingTime === 0) {
-            isPomodoroRunning = false; // Mark as not running.
+            isPomodoroRunning = false;
             console.log(`Pomodoro (${pomodoroMode}) finished while inactive.`);
-            // Reset timer to full duration for the mode it was in.
             pomodoroTotalDuration = getDurationForMode(pomodoroMode);
             pomodoroRemainingTime = pomodoroTotalDuration;
           }
         } else if (!isPomodoroRunning && pomodoroRemainingTime <= 0) {
-          // If timer was saved in a finished state (time <= 0), reset it.
           pomodoroTotalDuration = getDurationForMode(pomodoroMode);
           pomodoroRemainingTime = pomodoroTotalDuration;
         }
-
-        // Ensure total duration is correct for the loaded mode.
         pomodoroTotalDuration = getDurationForMode(pomodoroMode);
-        // Ensure remaining time doesn't exceed the total duration (e.g., if code changed duration).
         pomodoroRemainingTime = Math.min(
           pomodoroRemainingTime,
           pomodoroTotalDuration
         );
-        l = true; // Mark loading as successful.
+        l = true;
       } else {
-        // If loaded data is invalid, warn and remove it.
-        console.warn("Invalid Pomodoro state found. Resetting.");
+        console.warn("Invalid Pomodoro state. Resetting.");
         localStorage.removeItem(LSK.pomodoroState);
       }
     } catch (e) {
-      // Handle JSON parsing errors.
       console.error("Error parsing Pomodoro state:", e);
-      localStorage.removeItem(LSK.pomodoroState); // Remove potentially corrupt data.
+      localStorage.removeItem(LSK.pomodoroState);
     }
   }
-
-  // If loading failed or no data existed, reset to default state.
   if (!l) {
     pomodoroMode = "pomodoro";
     pomodoroTotalDuration = POMODORO_DURATION;
     pomodoroRemainingTime = POMODORO_DURATION;
     isPomodoroRunning = false;
   }
-
-  // Update the UI based on the loaded or default state.
   updatePomodoroDisplay();
   updatePomodoroModeButtonsUI();
   updatePomodoroControls();
-
-  // If the loaded state indicates the timer should be running, start it.
   if (isPomodoroRunning && pomodoroRemainingTime > 0) {
-    startPomodoroTimer(false); // Start timer without saving state again immediately.
+    startPomodoroTimer(false);
   }
 }
-
-/**
- * Gets the total duration in seconds for a given Pomodoro mode.
- * @param m - The Pomodoro mode.
- * @returns The duration in seconds.
- */
 function getDurationForMode(m: PomodoroMode): number {
   switch (m) {
     case "pomodoro":
@@ -1283,164 +958,85 @@ function getDurationForMode(m: PomodoroMode): number {
     case "longBreak":
       return LONG_BREAK_DURATION;
     default:
-      // Fallback for unknown modes (shouldn't happen with TypeScript).
       console.warn(`Unknown Pomodoro mode: ${m}. Using default duration.`);
       return POMODORO_DURATION;
   }
 }
-
-/**
- * Updates the visual styling of the Pomodoro mode buttons (Pomodoro, Short, Long).
- * Highlights the active mode and adjusts style based on the main awake/sleepy theme.
- */
 function updatePomodoroModeButtonsUI() {
-  if (!pomodoroModeButtons) return; // Exit if buttons not found.
-
-  // Check the state of the main keep awake switch.
-  const isAwakeActive = keepAwakeSwitch?.checked ?? true; // Assume awake if switch not found.
-
+  if (!pomodoroModeButtons) return;
+  const isAwakeActive = keepAwakeSwitch?.checked ?? true;
   pomodoroModeButtons.forEach((b) => {
-    const isCurrentMode = b.dataset.mode === pomodoroMode; // Is this button the active mode?
-    // Apply 'active' class if it's the current mode.
+    const isCurrentMode = b.dataset.mode === pomodoroMode;
     b.classList.toggle("active", isCurrentMode);
-    // Apply 'secondary-active' (blue theme) if it's active BUT the main app is in the 'sleepy' state.
     b.classList.toggle("secondary-active", isCurrentMode && !isAwakeActive);
   });
 }
-
-/**
- * Switches the Pomodoro timer to a new mode.
- * Pauses the current timer, updates state variables, resets time, and updates UI.
- * @param nm - The new PomodoroMode to switch to.
- */
 function switchPomodoroMode(nm: PomodoroMode) {
-  // If clicking the already active mode button while timer is stopped, do nothing but ensure UI is correct.
   if (pomodoroMode === nm && !isPomodoroRunning) {
     updatePomodoroModeButtonsUI();
     return;
   }
-
-  // Pause the timer if it's running (don't save state yet, happens at end).
   pausePomodoroTimer(false);
-
-  // Update state variables for the new mode.
   pomodoroMode = nm;
-  pomodoroTotalDuration = getDurationForMode(nm); // Get duration for the new mode.
-  pomodoroRemainingTime = pomodoroTotalDuration; // Reset remaining time.
-  isPomodoroRunning = false; // Ensure timer is stopped.
-
-  // Update UI elements.
+  pomodoroTotalDuration = getDurationForMode(nm);
+  pomodoroRemainingTime = pomodoroTotalDuration;
+  isPomodoroRunning = false;
   updatePomodoroDisplay();
   updatePomodoroModeButtonsUI();
   updatePomodoroControls();
-
-  // Save the new state to localStorage.
   savePomodoroState();
 }
-
-/**
- * Starts the Pomodoro timer countdown.
- * Sets up the interval, updates state, and saves state.
- * @param sv - Whether to save the state immediately (default: true). Set to false when called during load.
- */
 function startPomodoroTimer(sv = true) {
-  // Prevent starting if already running or finished.
   if (isPomodoroRunning || pomodoroRemainingTime <= 0) return;
-
-  isPomodoroRunning = true; // Set running flag.
-  updatePomodoroControls(); // Update button visibility.
-  if (sv) savePomodoroState(); // Save state if requested.
-
-  // Clear any existing interval to prevent duplicates.
+  isPomodoroRunning = true;
+  updatePomodoroControls();
+  if (sv) savePomodoroState();
   if (pomodoroInterval) clearInterval(pomodoroInterval);
-
-  // Define the function that runs every second (the "tick").
   const tick = () => {
-    // Stop the interval if the timer is no longer marked as running.
     if (!isPomodoroRunning) {
       clearInterval(pomodoroInterval!);
       pomodoroInterval = null;
       return;
     }
-
-    pomodoroRemainingTime--; // Decrement remaining time.
-    updatePomodoroDisplay(); // Update UI display.
-
-    // Check if the timer has finished.
+    pomodoroRemainingTime--;
+    updatePomodoroDisplay();
     if (pomodoroRemainingTime <= 0) {
-      pausePomodoroTimer(false); // Stop the timer interval (don't save state here).
+      pausePomodoroTimer(false);
       console.log(`Pomodoro Timer (${pomodoroMode}) finished!`);
-      // Reset state for the next run (or mode switch).
       pomodoroRemainingTime = pomodoroTotalDuration;
       isPomodoroRunning = false;
-      updatePomodoroDisplay(); // Update UI to show full time.
-      updatePomodoroControls(); // Update buttons (show Start).
-      savePomodoroState(); // Save the finished/reset state.
-      // TODO: Add notification or sound indication here?
+      updatePomodoroDisplay();
+      updatePomodoroControls();
+      savePomodoroState();
     } else if (pomodoroRemainingTime % 15 === 0) {
-      // Periodically save state (e.g., every 15s) while running,
-      // to minimize data loss if browser crashes.
       savePomodoroState();
     }
   };
-
-  // Run the first tick immediately, then set the interval.
   tick();
-  pomodoroInterval = window.setInterval(tick, 1000); // Run tick every 1000ms (1 second).
+  pomodoroInterval = window.setInterval(tick, 1000);
 }
-
-/**
- * Pauses the Pomodoro timer countdown.
- * Clears the interval, updates state, and optionally saves state.
- * @param sv - Whether to save the paused state (default: true).
- */
 function pausePomodoroTimer(sv = true) {
-  // Do nothing if not running.
   if (!isPomodoroRunning) return;
-
-  // Clear the interval timer.
   if (pomodoroInterval) {
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
   }
-
-  isPomodoroRunning = false; // Update running flag.
-  updatePomodoroControls(); // Update button visibility.
-  if (sv) savePomodoroState(); // Save the paused state if requested.
-
-  // Reset the document title if it was showing timer info.
+  isPomodoroRunning = false;
+  updatePomodoroControls();
+  if (sv) savePomodoroState();
   if (document.title !== SITE_TITLE) {
     document.title = SITE_TITLE;
   }
 }
-
-/**
- * Resets the Pomodoro timer to the full duration for the current mode.
- * Pauses the timer, resets time, updates UI, and saves state.
- * @param sv - Whether to save the reset state (default: true).
- */
 function resetPomodoroTimer(sv = true) {
-  // Pause the timer first (clears interval, sets isRunning=false).
-  pausePomodoroTimer(false); // Don't save intermediate paused state.
-
-  // Reset remaining time to the total duration for the current mode.
+  pausePomodoroTimer(false);
   pomodoroRemainingTime = pomodoroTotalDuration;
-  isPomodoroRunning = false; // Ensure it's marked as stopped.
-
-  // Update UI.
+  isPomodoroRunning = false;
   updatePomodoroDisplay();
   updatePomodoroControls();
-
-  // Save the reset state if requested.
   if (sv) savePomodoroState();
 }
-
-/**
- * Initializes the Pomodoro timer widget.
- * Fetches elements, loads saved state, and sets up event listeners for mode switching and controls.
- */
 function initializePomodoroTimer() {
-  // Get Pomodoro widget elements.
   pomodoroWidgetElement = document.getElementById("pomodoro-widget");
   pomodoroModeButtons = document.querySelectorAll(".pomodoro-mode-btn");
   pomodoroTimeDisplayElement = document.getElementById("pomodoro-time-display");
@@ -1453,29 +1049,23 @@ function initializePomodoroTimer() {
   resetPomodoroButtonElement = document.getElementById(
     "reset-pomodoro-btn"
   ) as HTMLButtonElement | null;
-
-  // Ensure all elements are present.
   if (
     ensureElements({
       pomodoroWidgetElement,
-      pomodoroModeButtons, // Checks if NodeList is not empty
+      pomodoroModeButtons,
       pomodoroTimeDisplayElement,
       startPomodoroButtonElement,
       pausePomodoroButtonElement,
       resetPomodoroButtonElement,
     })
   ) {
-    loadPomodoroState(); // Load saved state and update UI.
-
-    // Add listeners to mode buttons.
+    loadPomodoroState();
     pomodoroModeButtons!.forEach((button) => {
       button.addEventListener("click", () => {
         const mode = button.dataset.mode as PomodoroMode | undefined;
-        if (mode) switchPomodoroMode(mode); // Switch mode on click.
+        if (mode) switchPomodoroMode(mode);
       });
     });
-
-    // Add listeners to control buttons.
     startPomodoroButtonElement!.addEventListener("click", () =>
       startPomodoroTimer()
     );
@@ -1485,8 +1075,6 @@ function initializePomodoroTimer() {
     resetPomodoroButtonElement!.addEventListener("click", () =>
       resetPomodoroTimer()
     );
-
-    // Add listener for dragging the widget header.
     const header = pomodoroWidgetElement!.querySelector(
       ".widget-header"
     ) as HTMLElement | null;
@@ -1494,7 +1082,6 @@ function initializePomodoroTimer() {
       header.addEventListener("pointerdown", handlePomodoroPointerDown);
     else console.error("Pomodoro widget header not found!");
   } else {
-    // Log error and hide widget if elements are missing.
     console.error("Pomodoro init failed: elements missing.");
     if (pomodoroWidgetElement)
       pomodoroWidgetElement.classList.add("widget-hidden");
@@ -1502,12 +1089,8 @@ function initializePomodoroTimer() {
 }
 
 // --- Clock Widget Initialization ---
-/**
- * Initializes the draggable digital clock widget.
- * Fetches elements and sets up the drag listener for the header.
- */
+// (No changes needed here)
 function initializeDigitalClockWidget() {
-  // Get clock widget elements.
   digitalClockWidgetElement = document.getElementById("digital-clock-widget");
   widgetDigitalDateDisplayElement = document.getElementById(
     "widget-digital-date-display"
@@ -1515,8 +1098,6 @@ function initializeDigitalClockWidget() {
   widgetDigitalTimeDisplayElement = document.getElementById(
     "widget-digital-time-display"
   );
-
-  // Ensure elements are present.
   if (
     ensureElements({
       digitalClockWidgetElement,
@@ -1524,7 +1105,6 @@ function initializeDigitalClockWidget() {
       widgetDigitalTimeDisplayElement,
     })
   ) {
-    // Add listener for dragging the widget header.
     const header = digitalClockWidgetElement!.querySelector(
       ".widget-header"
     ) as HTMLElement | null;
@@ -1534,7 +1114,6 @@ function initializeDigitalClockWidget() {
       console.error("Digital Clock widget header not found!");
     }
   } else {
-    // Log error and hide widget if elements are missing.
     console.error(
       "Digital Clock widget initialization failed: elements missing."
     );
@@ -1544,58 +1123,33 @@ function initializeDigitalClockWidget() {
 }
 
 // --- Widget Position Persistence ---
-/**
- * Saves the current position (top, left) of a widget to localStorage.
- * @param k - The localStorage key to use for this widget.
- * @param e - The HTMLElement of the widget.
- */
+// (No changes needed here)
 function saveWidgetPosition(k: string, e: HTMLElement | null) {
-  if (!e || !k) return; // Exit if element or key is missing.
-
-  const s = window.getComputedStyle(e); // Get computed styles.
-  const p: WidgetPosition = { top: s.top, left: s.left }; // Extract top and left.
-
-  // Avoid saving 'auto' values, as they don't represent a user-set position.
+  if (!e || !k) return;
+  const s = window.getComputedStyle(e);
+  const p: WidgetPosition = { top: s.top, left: s.left };
   if (p.top === "auto" || p.left === "auto") {
-    // This might happen if the widget was positioned with 'right' initially.
-    // We only save explicit 'top' and 'left' after dragging.
     return;
   }
-
   try {
-    localStorage.setItem(k, JSON.stringify(p)); // Save the position object as JSON.
+    localStorage.setItem(k, JSON.stringify(p));
   } catch (e) {
-    console.error(`Error saving widget position for ${k}:`, e);
+    console.error(`Error saving ${k}:`, e);
   }
 }
-
-/**
- * Loads a widget's position from localStorage and applies it.
- * If no saved position exists or is invalid, applies default positions.
- * Also ensures the widget stays within screen bounds after loading.
- * @param k - The localStorage key for the widget's position.
- * @param e - The HTMLElement of the widget.
- * @param dT - Default 'top' value if no position is saved.
- * @param dL - Default 'left' value if no position is saved.
- * @param dR - Optional default 'right' value (used for battery widget initially).
- */
 function loadWidgetPosition(
   k: string,
   e: HTMLElement | null,
-  dT: string, // Default Top
-  dL: string, // Default Left
-  dR?: string // Default Right (optional)
+  dT: string,
+  dL: string,
+  dR?: string
 ) {
-  if (!e || !k) return; // Exit if element or key is missing.
-
-  let p: WidgetPosition | null = null; // Variable to hold loaded position.
-  const j = localStorage.getItem(k); // Get saved JSON string.
-
-  // Try to parse and validate the saved position.
+  if (!e || !k) return;
+  let p: WidgetPosition | null = null;
+  const j = localStorage.getItem(k);
   if (j) {
     try {
       p = JSON.parse(j);
-      // Validate structure and ensure values are not 'auto'.
       if (
         !p ||
         typeof p.top !== "string" ||
@@ -1603,88 +1157,59 @@ function loadWidgetPosition(
         p.top === "auto" ||
         p.left === "auto"
       ) {
-        p = null; // Invalid data, treat as no saved position.
-        localStorage.removeItem(k); // Remove invalid data.
+        p = null;
+        localStorage.removeItem(k);
       }
     } catch (e) {
-      // Handle JSON parsing errors.
-      console.error(`Error parsing widget position for ${k}:`, e);
-      localStorage.removeItem(k); // Remove potentially corrupt data.
+      console.error(`Error parsing ${k}:`, e);
+      localStorage.removeItem(k);
       p = null;
     }
   }
-
-  // Apply loaded position or defaults.
-  e.style.top = p?.top ?? dT; // Use loaded top or default top.
-  e.style.left = p?.left ?? dL; // Use loaded left or default left.
-
-  // Handle initial positioning using 'right' (specifically for battery).
+  e.style.top = p?.top ?? dT;
+  e.style.left = p?.left ?? dL;
   if (e.style.left === "auto" && dR) {
-    e.style.right = dR; // Apply default right if left is still auto.
+    e.style.right = dR;
   } else {
-    e.style.right = "auto"; // Ensure 'right' is 'auto' if 'left' is set.
+    e.style.right = "auto";
   }
-
-  // --- Clamp position to viewport boundaries ---
-  // Use requestAnimationFrame to ensure styles are applied and dimensions are available.
   requestAnimationFrame(() => {
     try {
-      // Get current navbar height (might change on resize, but good enough for load).
       if (navbar) navbarHeight = navbar.offsetHeight;
-
-      const r = e.getBoundingClientRect(); // Get widget dimensions and position.
-
-      // Check if widget has valid dimensions (might be 0 if hidden initially).
+      const r = e.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
-        let cT = r.top; // Current top position.
-        let cL = r.left; // Current left position.
-
-        // Calculate maximum allowed top/left based on window size, widget size, and padding.
+        let cT = r.top;
+        let cL = r.left;
         const maxTop = window.innerHeight - r.height - WIDGET_POSITION_PADDING;
         const maxLeft = window.innerWidth - r.width - WIDGET_POSITION_PADDING;
-        // Calculate minimum allowed top/left based on navbar height and padding.
         const minTop = navbarHeight + WIDGET_POSITION_PADDING;
         const minLeft = WIDGET_POSITION_PADDING;
-
-        // Clamp the current position within the calculated boundaries.
         const clampedTop = Math.max(minTop, Math.min(maxTop, cT));
         const clampedLeft = Math.max(minLeft, Math.min(maxLeft, cL));
-
-        // Apply clamped position only if it changed (avoids unnecessary style updates).
         if (clampedTop !== cT) {
           e.style.top = `${clampedTop}px`;
         }
         if (clampedLeft !== cL) {
           e.style.left = `${clampedLeft}px`;
-          e.style.right = "auto"; // Ensure right is auto if left is adjusted.
+          e.style.right = "auto";
         }
       }
     } catch (err) {
-      console.error(`Error during position clamping for ${k}:`, err);
+      console.error(`Error during clamping for ${k}:`, err);
     }
   });
-
-  // Ensure bottom/transform are reset after positioning.
   e.style.bottom = "auto";
   e.style.transform = "none";
 }
-
-/**
- * Loads the saved positions for all draggable widgets.
- * Calls loadWidgetPosition for each widget with its specific key and defaults.
- */
 function loadAllWidgetPositions() {
-  // Define default positions for each widget.
   const defaultClockTop = "400px";
   const defaultClockLeft = "20px";
   const defaultBatteryTop = "100px";
-  const defaultBatteryRight = "20px"; // Battery defaults to right side.
+  const defaultBatteryRight = "20px";
   const defaultTodoTop = "100px";
   const defaultTodoLeft = "20px";
   const defaultPomodoroTop = "240px";
   const defaultPomodoroLeft = "20px";
-
-  // Load position for each widget.
   loadWidgetPosition(
     LSK.clockWidgetPos,
     digitalClockWidgetElement,
@@ -1695,8 +1220,8 @@ function loadAllWidgetPositions() {
     LSK.batteryPos,
     batteryWidgetElement,
     defaultBatteryTop,
-    "auto", // Default left is auto for battery
-    defaultBatteryRight // Provide default right
+    "auto",
+    defaultBatteryRight
   );
   loadWidgetPosition(
     LSK.todoPos,
@@ -1713,15 +1238,7 @@ function loadAllWidgetPositions() {
 }
 
 // --- Dragging Logic ---
-/**
- * Initiates the dragging process for a widget.
- * Sets up pointer capture, initial state, and global event listeners for move/up.
- * @param event - The initial PointerDown event.
- * @param element - The widget's HTML element to be dragged.
- * @param stateSetters - Functions to update the specific widget's dragging state (isDragging, offsetX, offsetY).
- * @param moveHandler - The specific pointermove handler function for this widget.
- * @param upHandler - The specific pointerup handler function for this widget.
- */
+// (No changes needed here)
 function startDragging(
   event: PointerEvent,
   element: HTMLElement | null,
@@ -1733,180 +1250,114 @@ function startDragging(
   moveHandler: (event: PointerEvent) => void,
   upHandler: () => void
 ) {
-  // Basic validation.
   if (!element || !(event.target instanceof Node)) {
     return;
   }
-
   const targetElement = event.target as HTMLElement;
   const header = element.querySelector(".widget-header") as HTMLElement | null;
   const dragHandle = element.querySelector(
     ".widget-drag-handle"
   ) as HTMLElement | null;
-
-  // --- Determine if dragging should start ---
   let canDrag = false;
-  // Check if the pointerdown occurred within the header element.
   if (header && header.contains(targetElement)) {
-    // If a specific drag handle exists, check if the click was on it or the header padding.
     if (dragHandle) {
       canDrag = dragHandle.contains(targetElement) || targetElement === header;
     } else {
-      // If no specific handle, allow dragging from anywhere in the header.
       canDrag = true;
     }
   }
-
-  // Prevent dragging if:
-  // - Click was outside the valid drag area.
-  // - Click was on an interactive element within the header (button, input, etc.) or the resize handle.
   if (
     !canDrag ||
     targetElement.closest(
       "button, input, a, select, textarea, .widget-resize-handle"
     )
   ) {
-    return; // Don't initiate drag.
+    return;
   }
-
-  // Prevent default browser behavior (like text selection).
   event.preventDefault();
-
-  // Capture the pointer to ensure events are received even if pointer leaves the element.
   try {
     element.setPointerCapture(event.pointerId);
   } catch (err) {
     console.error("Failed to capture pointer:", err);
-    return; // Stop if pointer capture fails.
+    return;
   }
-
-  // --- Set initial state ---
-  stateSetters.setDragging(true); // Mark this widget as being dragged.
-  element.classList.add("dragging"); // Add CSS class for visual feedback.
-  document.body.style.cursor = "grabbing"; // Change cursor globally.
-  document.body.style.userSelect = "none"; // Disable text selection globally.
-  if (navbar) navbarHeight = navbar.offsetHeight; // Update navbar height for clamping.
-
-  // Calculate the offset between the pointer and the element's top-left corner.
+  stateSetters.setDragging(true);
+  element.classList.add("dragging");
+  document.body.style.cursor = "grabbing";
+  document.body.style.userSelect = "none";
+  if (navbar) navbarHeight = navbar.offsetHeight;
   const rect = element.getBoundingClientRect();
   stateSetters.setOffsetX(event.clientX - rect.left);
   stateSetters.setOffsetY(event.clientY - rect.top);
-
-  // --- Add global listeners for move and up events ---
   document.addEventListener("pointermove", moveHandler);
-  // Use 'once: true' for pointerup to automatically remove the listener after firing.
   document.addEventListener("pointerup", upHandler, { once: true });
 }
-
-/**
- * Handles the pointer move event during dragging.
- * Updates the widget's position based on pointer movement, clamped within bounds.
- * @param e - The PointerMove event.
- * @param el - The widget's HTML element being dragged.
- * @param s - The dragging state object for the widget (isDragging, offsetX, offsetY).
- */
 function dragMove(
   e: PointerEvent,
   el: HTMLElement | null,
   s: { isDragging: boolean; offsetX: number; offsetY: number }
 ) {
-  // Only proceed if this specific widget is being dragged and exists.
   if (!s.isDragging || !el) return;
-
-  e.preventDefault(); // Prevent other default actions during move.
-
-  // Calculate new top/left based on pointer position and initial offset.
+  e.preventDefault();
   const w = el.offsetWidth,
     h = el.offsetHeight;
   let newTop = e.clientY - s.offsetY,
     newLeft = e.clientX - s.offsetX;
-
-  // Calculate viewport boundaries, considering padding and navbar height.
   const maxTop = window.innerHeight - h - WIDGET_POSITION_PADDING;
   const maxLeft = window.innerWidth - w - WIDGET_POSITION_PADDING;
   const minTop = navbarHeight + WIDGET_POSITION_PADDING;
   const minLeft = WIDGET_POSITION_PADDING;
-
-  // Clamp the new position within the calculated boundaries.
   newTop = Math.max(minTop, Math.min(maxTop, newTop));
   newLeft = Math.max(minLeft, Math.min(maxLeft, newLeft));
-
-  // Apply the clamped position using inline styles.
   el.style.left = `${newLeft}px`;
   el.style.top = `${newTop}px`;
-  // Ensure right/bottom/transform are reset, as 'left' and 'top' now control position.
   el.style.right = "auto";
   el.style.bottom = "auto";
   el.style.transform = "none";
 }
-
-/**
- * Handles the pointer up event, ending the drag operation.
- * Releases pointer capture, removes global listeners, resets styles, and saves the position.
- * @param element - The widget's HTML element that was being dragged.
- * @param stateSetters - Function to update the specific widget's dragging state (setDragging).
- * @param moveHandler - The specific pointermove handler to remove.
- * @param storageKey - The localStorage key to save the final position to (optional).
- * @param event - The PointerUp event (optional, used for releasing pointer capture).
- */
 function stopDragging(
   element: HTMLElement | null,
   stateSetters: { setDragging: (isDragging: boolean) => void },
   moveHandler: (event: PointerEvent) => void,
   storageKey?: string,
-  event?: PointerEvent // Pass the event to release the correct pointer ID
+  event?: PointerEvent
 ) {
-  // Update the widget's dragging state.
   if (stateSetters) {
     stateSetters.setDragging(false);
   }
-
   if (element) {
-    // Reset visual feedback and release pointer capture.
     element.classList.remove("dragging");
     if (event?.pointerId) {
       try {
         element.releasePointerCapture(event.pointerId);
-      } catch (err) {
-        // Ignore errors if capture was already released or invalid.
-      }
+      } catch (err) {}
     }
-    // Save the final position if a storage key was provided.
     if (storageKey) {
       saveWidgetPosition(storageKey, element);
     }
   }
-
-  // Reset global cursor and text selection styles.
   document.body.style.cursor = "";
   document.body.style.userSelect = "";
-
-  // Remove the global pointermove listener. (Pointerup is removed automatically via 'once: true').
   document.removeEventListener("pointermove", moveHandler);
 }
 
 // --- Drag Handlers (Clock, Battery, Todo, Pomodoro) ---
-// These functions connect the generic drag logic (start/move/stopDragging)
-// to the specific state variables and elements of each widget.
-
-// Clock Widget Drag Handlers
+// (No changes needed here)
 function handleClockPointerDown(event: PointerEvent) {
   startDragging(
     event,
     digitalClockWidgetElement,
     {
-      // State setters for Clock
       setDragging: (v) => (isDraggingClock = v),
       setOffsetX: (v) => (clockOffsetX = v),
       setOffsetY: (v) => (clockOffsetY = v),
     },
-    handleClockPointerMove, // Move handler for Clock
-    handleClockPointerUp // Up handler for Clock
+    handleClockPointerMove,
+    handleClockPointerUp
   );
 }
 function handleClockPointerMove(event: PointerEvent) {
   dragMove(event, digitalClockWidgetElement, {
-    // Pass Clock's state
     isDragging: isDraggingClock,
     offsetX: clockOffsetX,
     offsetY: clockOffsetY,
@@ -1917,15 +1368,11 @@ function handleClockPointerUp(event?: PointerEvent) {
     digitalClockWidgetElement,
     { setDragging: (v) => (isDraggingClock = v) },
     handleClockPointerMove,
-    LSK.clockWidgetPos, // Storage key for Clock
+    LSK.clockWidgetPos,
     event
   );
 }
-
-// Battery Widget Drag Handlers
 function handleBatteryPointerDown(e: PointerEvent) {
-  // Special case: If battery is positioned with 'right' (initial load),
-  // calculate and set 'left'/'top' before starting drag.
   if (
     batteryWidgetElement &&
     window.getComputedStyle(batteryWidgetElement).left === "auto"
@@ -1933,13 +1380,12 @@ function handleBatteryPointerDown(e: PointerEvent) {
     const rect = batteryWidgetElement.getBoundingClientRect();
     batteryWidgetElement.style.left = `${rect.left}px`;
     batteryWidgetElement.style.top = `${rect.top}px`;
-    batteryWidgetElement.style.right = "auto"; // Switch to left/top positioning.
+    batteryWidgetElement.style.right = "auto";
   }
   startDragging(
     e,
     batteryWidgetElement,
     {
-      // State setters for Battery
       setDragging: (v) => (isDraggingBattery = v),
       setOffsetX: (v) => (batteryOffsetX = v),
       setOffsetY: (v) => (batteryOffsetY = v),
@@ -1950,7 +1396,6 @@ function handleBatteryPointerDown(e: PointerEvent) {
 }
 function handleBatteryPointerMove(e: PointerEvent) {
   dragMove(e, batteryWidgetElement, {
-    // Pass Battery's state
     isDragging: isDraggingBattery,
     offsetX: batteryOffsetX,
     offsetY: batteryOffsetY,
@@ -1961,18 +1406,15 @@ function handleBatteryPointerUp(e?: PointerEvent) {
     batteryWidgetElement,
     { setDragging: (v) => (isDraggingBattery = v) },
     handleBatteryPointerMove,
-    LSK.batteryPos, // Storage key for Battery
+    LSK.batteryPos,
     e
   );
 }
-
-// To-Do Widget Drag Handlers
 function handleTodoPointerDown(e: PointerEvent) {
   startDragging(
     e,
     todoWidgetElement,
     {
-      // State setters for ToDo
       setDragging: (v) => (isDraggingTodo = v),
       setOffsetX: (v) => (todoOffsetX = v),
       setOffsetY: (v) => (todoOffsetY = v),
@@ -1983,7 +1425,6 @@ function handleTodoPointerDown(e: PointerEvent) {
 }
 function handleTodoPointerMove(e: PointerEvent) {
   dragMove(e, todoWidgetElement, {
-    // Pass ToDo's state
     isDragging: isDraggingTodo,
     offsetX: todoOffsetX,
     offsetY: todoOffsetY,
@@ -1994,18 +1435,15 @@ function handleTodoPointerUp(e?: PointerEvent) {
     todoWidgetElement,
     { setDragging: (v) => (isDraggingTodo = v) },
     handleTodoPointerMove,
-    LSK.todoPos, // Storage key for ToDo
+    LSK.todoPos,
     e
   );
 }
-
-// Pomodoro Widget Drag Handlers
 function handlePomodoroPointerDown(e: PointerEvent) {
   startDragging(
     e,
     pomodoroWidgetElement,
     {
-      // State setters for Pomodoro
       setDragging: (v) => (isDraggingPomodoro = v),
       setOffsetX: (v) => (pomodoroOffsetX = v),
       setOffsetY: (v) => (pomodoroOffsetY = v),
@@ -2016,7 +1454,6 @@ function handlePomodoroPointerDown(e: PointerEvent) {
 }
 function handlePomodoroPointerMove(e: PointerEvent) {
   dragMove(e, pomodoroWidgetElement, {
-    // Pass Pomodoro's state
     isDragging: isDraggingPomodoro,
     offsetX: pomodoroOffsetX,
     offsetY: pomodoroOffsetY,
@@ -2027,140 +1464,82 @@ function handlePomodoroPointerUp(e?: PointerEvent) {
     pomodoroWidgetElement,
     { setDragging: (v) => (isDraggingPomodoro = v) },
     handlePomodoroPointerMove,
-    LSK.pomodoroPos, // Storage key for Pomodoro
+    LSK.pomodoroPos,
     e
   );
 }
 
 // --- To-Do Resizing Logic ---
-/**
- * Initiates the resizing process for the To-Do widget.
- * Attached to the pointerdown event on the resize handle.
- * @param e - The PointerDown event on the resize handle.
- */
+// (No changes needed here)
 function handleTodoResizePointerDown(e: PointerEvent) {
   if (!todoWidgetElement) return;
-
-  // Prevent the drag logic from firing if clicking the resize handle.
   e.stopPropagation();
-  e.preventDefault(); // Prevent text selection, etc.
-
-  isResizingTodo = true; // Set resizing state.
-
-  // Capture pointer on the widget element itself.
+  e.preventDefault();
+  isResizingTodo = true;
   try {
     todoWidgetElement.setPointerCapture(e.pointerId);
   } catch (err) {
-    console.error("Resize pointer capture failed:", err);
+    console.error("Resize capture failed:", err);
     return;
   }
-
-  // Apply visual feedback and global cursor/styles.
   todoWidgetElement.classList.add("resizing");
-  document.body.style.cursor = "nwse-resize"; // Diagonal resize cursor.
+  document.body.style.cursor = "nwse-resize";
   document.body.style.userSelect = "none";
-
-  // Store initial dimensions and mouse position for calculating delta.
-  if (navbar) navbarHeight = navbar.offsetHeight; // Update navbar height.
+  if (navbar) navbarHeight = navbar.offsetHeight;
   initialTodoWidth = todoWidgetElement.offsetWidth;
   initialTodoHeight = todoWidgetElement.offsetHeight;
   initialMouseX = e.clientX;
   initialMouseY = e.clientY;
-
-  // Add global listeners for move and up events.
   document.addEventListener("pointermove", handleTodoResizePointerMove);
   document.addEventListener("pointerup", handleTodoResizePointerUp, {
-    once: true, // Remove listener automatically after firing.
+    once: true,
   });
 }
-
-/**
- * Handles pointer movement during To-Do widget resizing.
- * Calculates and applies new width/height based on mouse delta, clamped by minimum size and viewport bounds.
- * @param e - The PointerMove event.
- */
 function handleTodoResizePointerMove(e: PointerEvent) {
-  // Only run if resizing is active and element exists.
   if (!isResizingTodo || !todoWidgetElement) return;
-
   e.preventDefault();
-
-  // Calculate change in mouse position from start.
   const deltaX = e.clientX - initialMouseX;
   const deltaY = e.clientY - initialMouseY;
-
-  // Calculate potential new dimensions.
   let newWidth = initialTodoWidth + deltaX;
   let newHeight = initialTodoHeight + deltaY;
-
-  // --- Clamp dimensions ---
-  const rect = todoWidgetElement.getBoundingClientRect(); // Get current position.
-
-  // Minimum width/height constraints.
-  // Maximum width/height constrained by the right/bottom edges of the viewport.
+  const rect = todoWidgetElement.getBoundingClientRect();
   newWidth = Math.max(
-    MIN_WIDGET_WIDTH, // Minimum width
-    Math.min(window.innerWidth - rect.left - WIDGET_POSITION_PADDING, newWidth) // Max width based on viewport right edge
+    MIN_WIDGET_WIDTH,
+    Math.min(window.innerWidth - rect.left - WIDGET_POSITION_PADDING, newWidth)
   );
   newHeight = Math.max(
-    MIN_WIDGET_HEIGHT, // Minimum height
-    Math.min(window.innerHeight - rect.top - WIDGET_POSITION_PADDING, newHeight) // Max height based on viewport bottom edge
+    MIN_WIDGET_HEIGHT,
+    Math.min(window.innerHeight - rect.top - WIDGET_POSITION_PADDING, newHeight)
   );
-
-  // Apply the clamped dimensions.
   todoWidgetElement.style.width = `${newWidth}px`;
   todoWidgetElement.style.height = `${newHeight}px`;
 }
-
-/**
- * Handles the pointer up event, ending the To-Do widget resizing operation.
- * Releases pointer capture, removes listeners, and resets styles.
- * (Note: To-Do widget size is not currently saved to localStorage).
- * @param e - The PointerUp event.
- */
 function handleTodoResizePointerUp(e: PointerEvent) {
-  if (!isResizingTodo) return; // Only run if resizing was active.
-  isResizingTodo = false; // Reset resizing state.
-
+  if (!isResizingTodo) return;
+  isResizingTodo = false;
   if (todoWidgetElement) {
-    // Remove visual feedback and release pointer.
     todoWidgetElement.classList.remove("resizing");
     if (e?.pointerId) {
       try {
         todoWidgetElement.releasePointerCapture(e.pointerId);
-      } catch (err) {
-        // Ignore errors.
-      }
+      } catch (err) {}
     }
-    // TODO: Could potentially save the widget size here if desired.
-    // saveWidgetSize(LSK.todoSize, todoWidgetElement);
   }
-
-  // Reset global cursor and styles.
   document.body.style.cursor = "";
   document.body.style.userSelect = "";
-
-  // Remove the global move listener. (Up listener removed by 'once: true').
   document.removeEventListener("pointermove", handleTodoResizePointerMove);
 }
 
 // --- Utility Function ---
-/**
- * Helper function to add and/or remove multiple CSS classes from multiple elements efficiently.
- * @param c - An object containing `toAdd` and/or `toRemove` properties.
- *            Each property is an object mapping class names to arrays of elements.
- */
+// (No changes needed here)
 function addRemoveClassesOfMultipleElements(c: ClassesToAddAndRemove) {
-  // Inner helper function to process either adding or removing.
   const process = (
-    map: ElementClassMap | undefined, // The map of className -> elements
-    action: "add" | "remove" // The classList action to perform
+    map: ElementClassMap | undefined,
+    action: "add" | "remove"
   ) => {
     if (map) {
-      // Iterate through the [className, elementsArray] pairs in the map.
       for (const [className, elements] of Object.entries(map)) {
         if (Array.isArray(elements)) {
-          // Filter out any null elements and apply the action to each valid element.
           elements
             .filter((el): el is HTMLElement => el !== null)
             .forEach((el) => el.classList[action](className));
@@ -2168,73 +1547,49 @@ function addRemoveClassesOfMultipleElements(c: ClassesToAddAndRemove) {
       }
     }
   };
-
-  // Process classes to add, then classes to remove.
   process(c?.toAdd, "add");
   process(c?.toRemove, "remove");
 }
 
 // --- Dropdown Actions ---
-/**
- * Handles the "Copy Link" button click.
- * Copies the current page URL to the clipboard and shows a confirmation tooltip.
- */
+// (No changes needed here)
 async function handleCopyLink() {
   if (!copyLinkButton) {
     console.error("Copy link button not found.");
     return;
   }
-  const button = copyLinkButton; // Alias for clarity.
+  const button = copyLinkButton;
   try {
-    // Use the modern Clipboard API to write text.
     await navigator.clipboard.writeText(SITE_URL);
-
-    // --- Show confirmation tooltip ---
-    // Get existing Bootstrap tooltip instance or create a new one.
     let tooltip = bootstrap.Tooltip.getInstance(button);
     if (!tooltip) {
-      // Initialize tooltip with manual trigger if it doesn't exist.
       tooltip = new bootstrap.Tooltip(button, { trigger: "manual" });
     }
-    // Store the original title to restore it later.
     const originalTitle =
       button.getAttribute("data-bs-original-title") || "Copy Link";
-    // Temporarily change the title to "Copied!".
     button.setAttribute("data-bs-original-title", "Copied!");
-    tooltip.show(); // Manually show the tooltip.
-
-    // Hide the tooltip and restore original title after a short delay.
+    tooltip.show();
     setTimeout(() => {
       tooltip?.hide();
       button.setAttribute("data-bs-original-title", originalTitle);
-    }, 1500); // 1.5 seconds delay.
+    }, 1500);
   } catch (err) {
-    // Handle potential errors (e.g., permissions, browser support).
     console.error("Failed to copy link: ", err);
-    alert("Failed to copy link to clipboard."); // Provide user feedback.
+    alert("Failed to copy link to clipboard.");
   }
 }
-
-/**
- * Handles the "Share App" button click.
- * Uses the Web Share API if available, otherwise falls back to copying the link.
- */
 async function handleShare() {
-  // Check if the Web Share API is supported.
   if (navigator.share) {
     try {
-      // Call the share method with title, text, and URL.
       await navigator.share({
         title: SITE_TITLE,
-        text: `Keep your screen awake with ${SITE_TITLE}!`, // Share message.
+        text: `Keep your screen awake with ${SITE_TITLE}!`,
         url: SITE_URL,
       });
       console.log("Shared successfully");
     } catch (err: any) {
-      // Handle errors, ignoring AbortError (user cancelling the share dialog).
       if (err.name !== "AbortError") {
         console.error("Error sharing:", err);
-        // Fallback to copying the link if sharing fails.
         alert("Could not share the app. Link copied instead!");
         handleCopyLink();
       } else {
@@ -2242,49 +1597,32 @@ async function handleShare() {
       }
     }
   } else {
-    // If Web Share API is not supported, inform user and copy link.
     console.warn("Web Share API not supported. Copying link instead.");
     alert(
       "Web Share not supported on this browser/device. Link copied instead!"
     );
-    handleCopyLink(); // Fallback to copy.
+    handleCopyLink();
   }
 }
-
-/**
- * Handles the "Install App" button click.
- * Triggers the deferred PWA installation prompt if available.
- */
 async function handleInstallPWA() {
-  // Check if the installation prompt event was captured and stored.
   if (!deferredInstallPrompt) {
     console.log("Install prompt is not available.");
-    // Hide the install button if the prompt is no longer available.
     if (installPWAItem) {
       installPWAItem.style.display = "none";
     }
     return;
   }
-
   try {
-    // Show the browser's installation prompt to the user.
     await deferredInstallPrompt.prompt();
     console.log("Install prompt shown.");
-
-    // Wait for the user to respond to the prompt.
     const { outcome } = await deferredInstallPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`); // 'accepted' or 'dismissed'
-
-    // Hide the install button regardless of the outcome, as the prompt can only be shown once.
+    console.log(`User response to the install prompt: ${outcome}`);
     if (installPWAItem) {
       installPWAItem.style.display = "none";
     }
-    // Clear the stored prompt event.
     deferredInstallPrompt = null;
   } catch (err) {
-    // Handle errors during the prompt process.
     console.error("Error showing install prompt:", err);
-    // Clear the stored prompt event and hide the button on error.
     deferredInstallPrompt = null;
     if (installPWAItem) {
       installPWAItem.style.display = "none";
@@ -2293,21 +1631,17 @@ async function handleInstallPWA() {
 }
 
 // --- Main Initialization ---
-/**
- * Initializes the entire application after the DOM is loaded.
- * Queries elements, loads settings, sets up intervals and event listeners.
- */
+// (Query editNameButton, add listener, modify name prompt call)
 function initializeApp() {
   console.log("Initializing App...");
 
   // --- 1. Query DOM Elements ---
-  // Fetch references to all necessary HTML elements using their IDs.
   navbar = document.getElementById("navbar");
   favicon = document.getElementById("web-icon") as HTMLLinkElement | null;
   keepAwakeSwitch = document.getElementById(
     "keep-awake-switch"
   ) as HTMLInputElement | null;
-  digitalClockElement = document.getElementById("digital-clock"); // Hero clock
+  digitalClockElement = document.getElementById("digital-clock");
   userGreetingElement = document.getElementById("user-greeting");
   clockFormatSwitch = document.getElementById(
     "clock-format-switch"
@@ -2333,6 +1667,10 @@ function initializeApp() {
   shareButton = document.getElementById(
     "share-btn"
   ) as HTMLButtonElement | null;
+  editNameButton = document.getElementById(
+    // <<< ADDED QUERY
+    "edit-name-btn"
+  ) as HTMLButtonElement | null;
   installPWAItem = document.getElementById(
     "install-pwa-item"
   ) as HTMLLIElement | null;
@@ -2342,49 +1680,41 @@ function initializeApp() {
   heroSection = document.getElementById("hero-section");
   statusText = document.getElementById("screen-status");
   infoDisclaimerElement = document.getElementById("info-disclaimer");
-  // Widgets (used for various initializations)
   batteryWidgetElement = document.getElementById("battery-widget");
   todoWidgetElement = document.getElementById("todo-widget");
   pomodoroWidgetElement = document.getElementById("pomodoro-widget");
-  // Specific widget parts needed early
   addTodoButtonElement = document.getElementById(
     "add-todo-button"
   ) as HTMLButtonElement | null;
   startPomodoroButtonElement = document.getElementById(
     "start-pomodoro-btn"
   ) as HTMLButtonElement | null;
-  helpModalElement = document.getElementById("helpModal"); // Help modal
+  helpModalElement = document.getElementById("helpModal");
 
   // --- 2. Initialize Bootstrap Tooltips ---
-  // Find all elements with the tooltip attribute.
   const tooltipTriggerList = Array.from(
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
   tooltipTriggerList.forEach((tooltipTriggerEl) => {
     if (tooltipTriggerEl instanceof HTMLElement) {
-      // Special handling for the copy button tooltip (manual trigger).
       if (tooltipTriggerEl.id === "copy-link-btn") {
         new bootstrap.Tooltip(tooltipTriggerEl, { trigger: "manual" });
       } else {
-        // Initialize standard tooltips (hover trigger).
         new bootstrap.Tooltip(tooltipTriggerEl);
       }
     }
   });
 
-  // --- 3. Load User Preferences and State from localStorage ---
+  // --- 3. Load User Preferences and State ---
   userName = localStorage.getItem(LSK.userName);
   is12HourFormat = localStorage.getItem(LSK.clockFormat) === "12h";
-  // Default to true if the setting is not explicitly 'false'.
   clockWidgetVisible = localStorage.getItem(LSK.clockWidgetVisible) !== "false";
   pomodoroVisible = localStorage.getItem(LSK.pomodoroVisible) !== "false";
   batteryVisible = localStorage.getItem(LSK.batteryVisible) !== "false";
   todoVisible = localStorage.getItem(LSK.todoVisible) !== "false";
-  // Default to false if the setting is not explicitly 'true'.
   minimalModeActive = localStorage.getItem(LSK.minimalModeActive) === "true";
 
   // --- 4. Set Initial States of UI Controls ---
-  // Set the checked state of switches based on loaded preferences.
   if (clockFormatSwitch) clockFormatSwitch.checked = is12HourFormat;
   if (showClockWidgetSwitch) showClockWidgetSwitch.checked = clockWidgetVisible;
   if (showPomodoroWidgetSwitch)
@@ -2394,28 +1724,25 @@ function initializeApp() {
   if (minimalModeSwitch) minimalModeSwitch.checked = minimalModeActive;
 
   // --- 5. Initialize Core Features & Widgets ---
-  updateClock(); // Initial clock update.
-  if (clockInterval) clearInterval(clockInterval); // Clear any previous interval.
-  clockInterval = window.setInterval(updateClock, 1000); // Start clock update interval.
-
-  // Initialize each feature/widget module.
-  initializeDigitalClockWidget(); // Setup clock widget dragging.
-  initializeBatteryIndicator(); // Setup battery widget.
-  initializeTodoList(); // Setup To-Do list widget.
-  initializePomodoroTimer(); // Setup Pomodoro timer widget.
-
-  // Load saved widget positions after widgets are initialized.
+  updateClock();
+  if (clockInterval) clearInterval(clockInterval);
+  clockInterval = window.setInterval(updateClock, 1000);
+  initializeDigitalClockWidget();
+  initializeBatteryIndicator();
+  initializeTodoList();
+  initializePomodoroTimer();
   loadAllWidgetPositions();
-  // Apply initial visibility settings based on loaded state.
   applyAllWidgetVisibilities();
 
-  // --- 6. Handle User Greeting ---
-  // Prompt for name if not found in localStorage, otherwise update greeting.
-  if (!userName) promptForName();
-  else updateGreeting();
+  // --- 6. Handle User Greeting & Name Prompt Initialization ---
+  // IMPORTANT: Initialize the modal elements/instance *before* potentially showing it.
+  initializeAndMaybeShowNamePrompt(!userName); // Show modal only if userName is null/missing
+  // Update greeting if name already exists
+  if (userName) {
+    updateGreeting();
+  }
 
   // --- 7. Add Core Event Listeners ---
-  // Attach event handlers to UI controls.
   keepAwakeSwitch?.addEventListener("change", changeSwitch);
   clockFormatSwitch?.addEventListener("change", handleClockFormatToggle);
   showClockWidgetSwitch?.addEventListener("change", handleShowClockToggle);
@@ -2428,23 +1755,19 @@ function initializeApp() {
   minimalModeSwitch?.addEventListener("change", handleMinimalModeToggle);
   copyLinkButton?.addEventListener("click", handleCopyLink);
   shareButton?.addEventListener("click", handleShare);
+  editNameButton?.addEventListener("click", handleEditNameClick); // <<< ADDED LISTENER
   installPWAButton?.addEventListener("click", handleInstallPWA);
-  // No listener needed for help button - Bootstrap's data attributes handle modal toggle.
 
   // --- 8. Set Initial NoSleep State and UI ---
-  // Sync the NoSleep library state and UI with the initial state of the switch.
   if (keepAwakeSwitch) {
-    const isChecked = keepAwakeSwitch.checked; // Read initial state from the DOM.
-    // Update UI to match the switch state.
+    const isChecked = keepAwakeSwitch.checked;
     changeStatusText(isChecked);
     changeBackground(isChecked);
     changeFavicon(isChecked);
-    // Enable NoSleep library if the switch is initially checked.
     if (isChecked) {
-      nosleep.enable().catch(handleNoSleepError); // Enable and handle potential errors.
+      nosleep.enable().catch(handleNoSleepError);
     }
   } else {
-    // If the switch isn't found, log error and default to 'sleepy' state UI.
     console.error("Keep awake switch not found! Cannot initialize NoSleep.");
     changeBackground(false);
     changeStatusText(false);
@@ -2452,12 +1775,10 @@ function initializeApp() {
   }
 
   // --- 9. PWA Service Worker Registration ---
-  // Check if service workers are supported by the browser.
   if ("serviceWorker" in navigator) {
-    // Register the service worker after the page has loaded.
     window.addEventListener("load", () => {
       navigator.serviceWorker
-        .register("./service-worker.js") // Path to the service worker file.
+        .register("./service-worker.js")
         .then((registration) =>
           console.log(
             "Service Worker registered with scope:",
@@ -2476,36 +1797,25 @@ function initializeApp() {
 }
 
 // --- Run Initialization ---
-// Add listener to run initializeApp once the DOM is fully loaded and parsed.
 window.addEventListener("DOMContentLoaded", initializeApp);
 
 // --- Global Event Listeners ---
-// Listen for the page trying to unload.
+// (No changes needed here)
 window.addEventListener("beforeunload", () => {
-  // Save the Pomodoro state if it's running to preserve time across reloads/closes.
   if (isPomodoroRunning) savePomodoroState();
 });
-
-// Listen for the browser firing the PWA installation prompt event.
 window.addEventListener("beforeinstallprompt", (e: Event) => {
-  // Prevent the default mini-infobar from appearing on mobile.
   e.preventDefault();
-  // Store the event object so it can be triggered later by the install button.
   deferredInstallPrompt = e as BeforeInstallPromptEvent;
   console.log("`beforeinstallprompt` event fired. PWA install available.");
-  // Show the custom install button in the settings dropdown.
   if (installPWAItem) {
     installPWAItem.style.display = "block";
   }
 });
-
-// Listen for the app being successfully installed.
 window.addEventListener("appinstalled", () => {
   console.log("PWA was installed successfully!");
-  // Hide the install button as it's no longer needed.
   if (installPWAItem) {
     installPWAItem.style.display = "none";
   }
-  // Clear the stored prompt event.
   deferredInstallPrompt = null;
 });
