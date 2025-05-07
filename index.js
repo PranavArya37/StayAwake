@@ -68,6 +68,12 @@ installPWAItem = null, installPWAButton = null,
 namePromptModalElement = null, userNameInputElement = null, submitNameButtonElement = null, nameInputErrorElement = null, namePromptModalInstance = null, helpModalElement = null, 
 // Widget Elements
 digitalClockWidgetElement = null, widgetDigitalDateDisplayElement = null, widgetDigitalTimeDisplayElement = null, batteryWidgetElement = null, batteryLevelElement = null, batteryPercentageValueElement = null, batteryChargingStatusElement = null, batteryLowStatusElement = null, todoWidgetElement = null, todoListElement = null, newTodoInputElement = null, addTodoButtonElement = null, todoResizeHandleElement = null, pomodoroWidgetElement = null, pomodoroModeButtons = null, pomodoroTimeDisplayElement = null, startPomodoroButtonElement = null, pausePomodoroButtonElement = null, resetPomodoroButtonElement = null, 
+// Pomodoro Finished Alert Modal Elements
+pomodoroFinishedSoundElement = null, // <<< ADDED
+pomodoroFinishedAlertModalElement = null, // <<< ADDED
+pomodoroFinishedAlertModalInstance = null, // <<< ADDED
+pomodoroFinishedAlertModalLabelElement = null, // <<< ADDED
+pomodoroFinishedAlertMessageElement = null, // <<< ADDED
 // Other Elements
 infoDisclaimerElement = null;
 // --- State Variables ---
@@ -76,7 +82,7 @@ var nosleep = new NoSleep(), userName = null, clockInterval = null, is12HourForm
 var todos = [];
 var pomodoroMode = "pomodoro", pomodoroTotalDuration = 25 * 60, pomodoroRemainingTime = pomodoroTotalDuration, pomodoroInterval = null, isPomodoroRunning = false;
 // --- Constants ---
-// (No changes needed here)
+// (No changes needed here for existing constants)
 var LSK = {
     userName: "stayAwakeUserName",
     clockFormat: "stayAwakeClockFormat",
@@ -100,6 +106,7 @@ var WIDGET_POSITION_PADDING = 10;
 var POMODORO_DURATION = 25 * 60;
 var SHORT_BREAK_DURATION = 5 * 60;
 var LONG_BREAK_DURATION = 15 * 60;
+var POMODORO_FINISHED_SOUND_URL = "https://pomofocus.io/audios/alarms/alarm-wood.mp3"; // <<< ADDED Temporary URL
 // --- Utility: Safe Element Access ---
 // (No changes needed here)
 function ensureElements(elements) {
@@ -704,7 +711,7 @@ function initializeTodoList() {
     }
 }
 // --- Pomodoro Timer Functions ---
-// (No changes needed here)
+// (formatPomodoroTime, updatePomodoroDisplay, updatePomodoroControls, savePomodoroState, loadPomodoroState, getDurationForMode, updatePomodoroModeButtonsUI, switchPomodoroMode, pausePomodoroTimer, resetPomodoroTimer, initializePomodoroTimer are largely unchanged, startPomodoroTimer is modified)
 function formatPomodoroTime(s) {
     var m = Math.floor(s / 60);
     var c = s % 60;
@@ -867,19 +874,42 @@ function startPomodoroTimer(sv) {
         pomodoroRemainingTime--;
         updatePomodoroDisplay();
         if (pomodoroRemainingTime <= 0) {
-            pausePomodoroTimer(false);
+            // <<< MODIFIED SECTION START >>>
+            // Play sound
+            pomodoroFinishedSoundElement === null || pomodoroFinishedSoundElement === void 0 ? void 0 : pomodoroFinishedSoundElement.play().catch(function (err) { return console.error("Error playing sound:", err); });
+            // Update and show modal
+            if (pomodoroFinishedAlertModalLabelElement) {
+                pomodoroFinishedAlertModalLabelElement.textContent =
+                    pomodoroMode === "pomodoro"
+                        ? "Pomodoro Finished!"
+                        : pomodoroMode === "shortBreak"
+                            ? "Short Break Over!"
+                            : "Long Break Over!";
+            }
+            if (pomodoroFinishedAlertMessageElement) {
+                pomodoroFinishedAlertMessageElement.textContent =
+                    pomodoroMode === "pomodoro"
+                        ? "Your Pomodoro session has ended. Time for a break!"
+                        : pomodoroMode === "shortBreak"
+                            ? "Your short break is over. Back to focus!"
+                            : "Your long break is over. Ready for the next session?";
+            }
+            pomodoroFinishedAlertModalInstance === null || pomodoroFinishedAlertModalInstance === void 0 ? void 0 : pomodoroFinishedAlertModalInstance.show();
+            // <<< MODIFIED SECTION END >>>
+            pausePomodoroTimer(false); // This will clear interval, set isPomodoroRunning to false, update controls
             console.log("Pomodoro Timer (".concat(pomodoroMode, ") finished!"));
-            pomodoroRemainingTime = pomodoroTotalDuration;
-            isPomodoroRunning = false;
-            updatePomodoroDisplay();
-            updatePomodoroControls();
-            savePomodoroState();
+            pomodoroRemainingTime = pomodoroTotalDuration; // Reset for next session
+            // isPomodoroRunning is already set to false by pausePomodoroTimer
+            updatePomodoroDisplay(); // Update display to show full time
+            updatePomodoroControls(); // Ensure controls are in reset state
+            savePomodoroState(); // Save the reset state
         }
         else if (pomodoroRemainingTime % 15 === 0) {
+            // Save state periodically
             savePomodoroState();
         }
     };
-    tick();
+    tick(); // Initial tick
     pomodoroInterval = window.setInterval(tick, 1000);
 }
 function pausePomodoroTimer(sv) {
@@ -895,14 +925,15 @@ function pausePomodoroTimer(sv) {
     if (sv)
         savePomodoroState();
     if (document.title !== SITE_TITLE) {
+        // Reset document title if it was showing timer
         document.title = SITE_TITLE;
     }
 }
 function resetPomodoroTimer(sv) {
     if (sv === void 0) { sv = true; }
-    pausePomodoroTimer(false);
+    pausePomodoroTimer(false); // Pause first (clears interval, sets running to false)
     pomodoroRemainingTime = pomodoroTotalDuration;
-    isPomodoroRunning = false;
+    isPomodoroRunning = false; // Ensure it's false
     updatePomodoroDisplay();
     updatePomodoroControls();
     if (sv)
@@ -915,6 +946,11 @@ function initializePomodoroTimer() {
     startPomodoroButtonElement = document.getElementById("start-pomodoro-btn");
     pausePomodoroButtonElement = document.getElementById("pause-pomodoro-btn");
     resetPomodoroButtonElement = document.getElementById("reset-pomodoro-btn");
+    // Query new elements for Pomodoro finished alert
+    pomodoroFinishedSoundElement = document.getElementById("pomodoro-finished-sound");
+    pomodoroFinishedAlertModalElement = document.getElementById("pomodoroFinishedAlertModal");
+    pomodoroFinishedAlertModalLabelElement = document.getElementById("pomodoroFinishedAlertModalLabel");
+    pomodoroFinishedAlertMessageElement = document.getElementById("pomodoroFinishedAlertMessage");
     if (ensureElements({
         pomodoroWidgetElement: pomodoroWidgetElement,
         pomodoroModeButtons: pomodoroModeButtons,
@@ -922,6 +958,11 @@ function initializePomodoroTimer() {
         startPomodoroButtonElement: startPomodoroButtonElement,
         pausePomodoroButtonElement: pausePomodoroButtonElement,
         resetPomodoroButtonElement: resetPomodoroButtonElement,
+        // Add new elements to ensure check if critical, or handle nulls later
+        pomodoroFinishedSoundElement: pomodoroFinishedSoundElement,
+        pomodoroFinishedAlertModalElement: pomodoroFinishedAlertModalElement,
+        pomodoroFinishedAlertModalLabelElement: pomodoroFinishedAlertModalLabelElement,
+        pomodoroFinishedAlertMessageElement: pomodoroFinishedAlertMessageElement,
     })) {
         loadPomodoroState();
         pomodoroModeButtons.forEach(function (button) {
@@ -945,6 +986,14 @@ function initializePomodoroTimer() {
             header.addEventListener("pointerdown", handlePomodoroPointerDown);
         else
             console.error("Pomodoro widget header not found!");
+        // Initialize Bootstrap modal instance for Pomodoro finished alert
+        if (pomodoroFinishedAlertModalElement) {
+            pomodoroFinishedAlertModalInstance = new bootstrap.Modal(pomodoroFinishedAlertModalElement);
+        }
+        // Set the sound source
+        if (pomodoroFinishedSoundElement) {
+            pomodoroFinishedSoundElement.src = POMODORO_FINISHED_SOUND_URL;
+        }
     }
     else {
         console.error("Pomodoro init failed: elements missing.");
@@ -1505,7 +1554,7 @@ function initializeApp() {
     initializeDigitalClockWidget();
     initializeBatteryIndicator();
     initializeTodoList();
-    initializePomodoroTimer();
+    initializePomodoroTimer(); // This will now also query and setup Pomodoro finished alert elements
     loadAllWidgetPositions();
     applyAllWidgetVisibilities();
     // --- 6. Handle User Greeting & Name Prompt Initialization ---

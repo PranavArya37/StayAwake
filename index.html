@@ -38,7 +38,10 @@
     />
 
     <!-- Google Site Verification Tag-->
-    <meta name="google-site-verification" content="d30soULF1s3YW4bMglLGwj5DHn8JJSK0lO47TKjt_J8" />
+    <meta
+      name="google-site-verification"
+      content="d30soULF1s3YW4bMglLGwj5DHn8JJSK0lO47TKjt_J8"
+    />
   </head>
 
   <body>
@@ -532,6 +535,48 @@
     </div>
     <!-- End Help Modal -->
 
+    <!-- Pomodoro Finished Alert Modal -->
+    <div
+      class="modal fade"
+      id="pomodoroFinishedAlertModal"
+      tabindex="-1"
+      aria-labelledby="pomodoroFinishedAlertModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="pomodoroFinishedAlertModalLabel">
+              Timer Finished!
+              <!-- Default Title, updated by JS -->
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p id="pomodoroFinishedAlertMessage">
+              Your timer session has ended.
+              <!-- Default Message, updated by JS -->
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Pomodoro Finished Alert Modal -->
+
     <!-- End Modals Section -->
 
     <!-- Widgets Section -->
@@ -716,6 +761,9 @@
     <!-- End Pomodoro Timer Widget -->
 
     <!-- End Widgets Section -->
+
+    <!-- Notification Sound for Pomodoro Timer -->
+    <audio id="pomodoro-finished-sound" preload="auto"></audio>
 
     <!-- JavaScript Files -->
     <!-- Main application script (compiled from TypeScript) -->
