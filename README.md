@@ -6,6 +6,13 @@
 ![Responsive](https://img.shields.io/badge/Responsive-Design-purple)
 ![Made with ❤️](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red)
 
+## 🏆 Recognition
+
+<p align="center">
+  <a href="https://ctrlalt.cc/product/stayawake" target="_blank">
+    <img src="/recognition/cc-potd-blue-large.png" alt="Product of the Day on CtrlAlt.cc" width="200"/>
+  </a>
+</p>
 
 **Stay Awake** is a simple yet powerful web application designed to prevent your device's screen from automatically going into sleep mode. It's perfect for situations where you need your screen to remain active **while actively viewing the tab**, such as reading long articles, monitoring dashboards, or giving a presentation **from the same browser tab**.
 
