@@ -56,7 +56,7 @@ interface WidgetPosition {
 // --- END: Type Definitions ---
 
 // --- DOM Element Variables ---
-// (Added editNameButton)
+// (No changes needed here)
 let heroSection: HTMLElement | null = null,
   navbar: HTMLElement | null = null,
   statusText: HTMLElement | null = null,
@@ -74,7 +74,7 @@ let heroSection: HTMLElement | null = null,
   // Dropdown Buttons
   copyLinkButton: HTMLButtonElement | null = null,
   shareButton: HTMLButtonElement | null = null,
-  editNameButton: HTMLButtonElement | null = null, // <<< ADDED
+  editNameButton: HTMLButtonElement | null = null,
   installPWAItem: HTMLLIElement | null = null,
   installPWAButton: HTMLButtonElement | null = null,
   // Modals
@@ -105,11 +105,11 @@ let heroSection: HTMLElement | null = null,
   pausePomodoroButtonElement: HTMLButtonElement | null = null,
   resetPomodoroButtonElement: HTMLButtonElement | null = null,
   // Pomodoro Finished Alert Modal Elements
-  pomodoroFinishedSoundElement: HTMLAudioElement | null = null, // <<< ADDED
-  pomodoroFinishedAlertModalElement: HTMLElement | null = null, // <<< ADDED
-  pomodoroFinishedAlertModalInstance: any | null = null, // <<< ADDED
-  pomodoroFinishedAlertModalLabelElement: HTMLElement | null = null, // <<< ADDED
-  pomodoroFinishedAlertMessageElement: HTMLElement | null = null, // <<< ADDED
+  pomodoroFinishedSoundElement: HTMLAudioElement | null = null,
+  pomodoroFinishedAlertModalElement: HTMLElement | null = null,
+  pomodoroFinishedAlertModalInstance: any | null = null,
+  pomodoroFinishedAlertModalLabelElement: HTMLElement | null = null,
+  pomodoroFinishedAlertMessageElement: HTMLElement | null = null,
   // Other Elements
   infoDisclaimerElement: HTMLElement | null = null;
 
@@ -151,7 +151,6 @@ let pomodoroMode: PomodoroMode = "pomodoro",
   isPomodoroRunning: boolean = false;
 
 // --- Constants ---
-// (No changes needed here for existing constants)
 const LSK = {
   userName: "stayAwakeUserName",
   clockFormat: "stayAwakeClockFormat",
@@ -176,10 +175,13 @@ const POMODORO_DURATION = 25 * 60;
 const SHORT_BREAK_DURATION = 5 * 60;
 const LONG_BREAK_DURATION = 15 * 60;
 const POMODORO_FINISHED_SOUND_URL =
-  "https://pomofocus.io/audios/alarms/alarm-wood.mp3"; // <<< ADDED Temporary URL
+  "https://pomofocus.io/audios/alarms/alarm-wood.mp3";
+// <<< START: ADDED FOR BMC WIDGET >>>
+const BMC_AWAKE_COLOR = "#40DCA5";
+const BMC_SLEEPY_COLOR = "#008dd5";
+// <<< END: ADDED FOR BMC WIDGET >>>
 
 // --- Utility: Safe Element Access ---
-// (No changes needed here)
 function ensureElements(elements: {
   [key: string]:
     | HTMLElement
@@ -200,7 +202,6 @@ function ensureElements(elements: {
 }
 
 // --- Error Handling ---
-// (No changes needed here)
 function handleNoSleepError(err: Error | unknown) {
   let message = "NoSleep Error";
   if (err instanceof Error) {
@@ -218,7 +219,24 @@ function handleNoSleepError(err: Error | unknown) {
 }
 
 // --- UI Toggling & Core Logic ---
-// (No changes needed in changeSwitch, changeBackground, changeStatusText, changeFavicon, getGreetingPrefix, updateGreeting)
+
+// <<< START: NEW FUNCTION FOR BMC WIDGET >>>
+/**
+ * Updates the background color of the 'Buy Me a Coffee' widget button.
+ * @param isAwake - The current state of the main switch.
+ */
+function updateBmcWidgetColor(isAwake: boolean) {
+  // The BMC widget script creates a div with the ID 'bmc-wbtn'.
+  const bmcButton = document.getElementById("bmc-wbtn") as HTMLElement | null;
+  if (bmcButton) {
+    // The color is controlled by the 'background-color' style property.
+    bmcButton.style.backgroundColor = isAwake
+      ? BMC_AWAKE_COLOR
+      : BMC_SLEEPY_COLOR;
+  }
+}
+// <<< END: NEW FUNCTION FOR BMC WIDGET >>>
+
 function changeSwitch(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target?.checked !== undefined) {
@@ -304,6 +322,9 @@ function changeBackground(isAwake: boolean) {
       };
   addRemoveClassesOfMultipleElements(highlightClassMap);
   updatePomodoroModeButtonsUI();
+  // <<< START: ADDED CALL FOR BMC WIDGET >>>
+  updateBmcWidgetColor(isAwake);
+  // <<< END: ADDED CALL FOR BMC WIDGET >>>
 }
 function changeStatusText(isAwake: boolean) {
   if (statusText) {
@@ -335,7 +356,7 @@ function updateGreeting() {
     userGreetingElement.innerHTML = getGreetingPrefix() + "!";
   }
 }
-// (No changes needed in formatTimePart, formatDatePart, updateClock, handleClockFormatToggle)
+// ... (The rest of the file remains the same until initializeApp)
 function formatTimePart(d: Date, h12: boolean): string {
   return d.toLocaleTimeString(h12 ? "en-US" : "en-GB", {
     hour: "2-digit",
@@ -380,7 +401,7 @@ function handleClockFormatToggle(e: Event) {
 }
 
 // --- Widget Visibility ---
-// (No changes needed in applyAllWidgetVisibilities, handleShowClockToggle, handleShowPomodoroToggle, handleShowBatteryToggle, handleShowTodoToggle, handleMinimalModeToggle)
+// (No changes needed here)
 function applyAllWidgetVisibilities() {
   const hideAllWidgets = minimalModeActive;
   const shouldShowClock = !hideAllWidgets && clockWidgetVisible;
@@ -467,14 +488,7 @@ function handleMinimalModeToggle(event: Event) {
 }
 
 // --- Name Prompt & Edit ---
-// (handleNameSubmit and handleEnterKey remain the same)
-// (promptForName gets slightly modified to ensure modal instance is ready)
-
-/**
- * Handles the submission of the user's name from the prompt modal.
- * Validates input, saves to localStorage, updates greeting, and hides the modal.
- * (Used for both initial prompt and editing name)
- */
+// (No changes needed here)
 function handleNameSubmit() {
   const n = userNameInputElement?.value.trim();
   if (n && userNameInputElement && nameInputErrorElement) {
@@ -490,12 +504,6 @@ function handleNameSubmit() {
     userNameInputElement.focus();
   }
 }
-
-/**
- * Initializes and optionally shows the name prompt modal.
- * Ensures the modal instance and listeners are set up, needed for both initial prompt and editing.
- * @param show - If true, shows the modal immediately (used for initial prompt).
- */
 function initializeAndMaybeShowNamePrompt(show: boolean = false) {
   namePromptModalElement = document.getElementById("namePromptModal");
   userNameInputElement = document.getElementById(
@@ -514,75 +522,51 @@ function initializeAndMaybeShowNamePrompt(show: boolean = false) {
       nameInputErrorElement,
     })
   ) {
-    // Get or create instance if it doesn't exist yet
     if (!namePromptModalInstance) {
       namePromptModalInstance = bootstrap.Modal.getOrCreateInstance(
         namePromptModalElement!
       );
-      // Attach listeners only once when the instance is first created
       submitNameButtonElement!.addEventListener("click", handleNameSubmit);
       userNameInputElement!.addEventListener("keypress", handleEnterKey);
-      namePromptModalElement!.addEventListener(
-        "shown.bs.modal",
-        () => userNameInputElement?.focus()
-        // { once: true } // Remove 'once' so focus works on subsequent shows
+      namePromptModalElement!.addEventListener("shown.bs.modal", () =>
+        userNameInputElement?.focus()
       );
     }
-
-    // Show the modal if requested (for initial prompt)
     if (show) {
-      userNameInputElement!.value = ""; // Clear input for initial prompt
-      nameInputErrorElement?.classList.add("d-none"); // Ensure error is hidden
-      userNameInputElement!.classList.remove("is-invalid"); // Ensure input is not marked invalid
+      userNameInputElement!.value = "";
+      nameInputErrorElement?.classList.add("d-none");
+      userNameInputElement!.classList.remove("is-invalid");
       namePromptModalInstance?.show();
     }
   } else {
     console.error("Cannot initialize name prompt: Modal elements missing.");
-    // If initialization fails, update greeting without a name if needed
     if (!userName) {
       updateGreeting();
     }
   }
 }
-
-/**
- * Handles the Enter key press within the name input field to submit the name.
- * @param e - The KeyboardEvent object.
- */
 function handleEnterKey(e: KeyboardEvent) {
   if (e.key === "Enter" && userNameInputElement === document.activeElement) {
     e.preventDefault();
     handleNameSubmit();
   }
 }
-
-/**
- * <<< NEW FUNCTION >>>
- * Handles the click event for the "Edit Name" button.
- * Pre-fills the name input and shows the name prompt modal.
- */
 function handleEditNameClick() {
-  // Ensure modal instance and input element exist
   if (namePromptModalInstance && userNameInputElement) {
-    // Pre-fill the input with the current name
-    userNameInputElement.value = userName || ""; // Use current name or empty string if somehow null
-    // Ensure error state is cleared
+    userNameInputElement.value = userName || "";
     nameInputErrorElement?.classList.add("d-none");
     userNameInputElement.classList.remove("is-invalid");
-    // Show the modal
     namePromptModalInstance.show();
-    // Focus might already be handled by the persistent 'shown.bs.modal' listener
   } else {
     console.error(
       "Cannot open edit name modal: Instance or input element not found."
     );
-    // Fallback: Try to initialize and show (will clear input, less ideal)
     initializeAndMaybeShowNamePrompt(true);
   }
 }
 
+// ... (The rest of the file remains the same until initializeApp)
 // --- Battery Functions ---
-// (No changes needed here)
 function updateBatteryUI(battery: BatteryManager) {
   if (
     !batteryLevelElement ||
@@ -685,7 +669,6 @@ function initializeBatteryIndicator() {
 }
 
 // --- To-Do List Functions ---
-// (No changes needed here)
 function loadTodos() {
   const s = localStorage.getItem(LSK.todos);
   try {
@@ -844,7 +827,6 @@ function initializeTodoList() {
 }
 
 // --- Pomodoro Timer Functions ---
-// (formatPomodoroTime, updatePomodoroDisplay, updatePomodoroControls, savePomodoroState, loadPomodoroState, getDurationForMode, updatePomodoroModeButtonsUI, switchPomodoroMode, pausePomodoroTimer, resetPomodoroTimer, initializePomodoroTimer are largely unchanged, startPomodoroTimer is modified)
 function formatPomodoroTime(s: number): string {
   const m = Math.floor(s / 60);
   const c = s % 60;
@@ -1009,13 +991,9 @@ function startPomodoroTimer(sv = true) {
     pomodoroRemainingTime--;
     updatePomodoroDisplay();
     if (pomodoroRemainingTime <= 0) {
-      // <<< MODIFIED SECTION START >>>
-      // Play sound
       pomodoroFinishedSoundElement
         ?.play()
         .catch((err) => console.error("Error playing sound:", err));
-
-      // Update and show modal
       if (pomodoroFinishedAlertModalLabelElement) {
         pomodoroFinishedAlertModalLabelElement.textContent =
           pomodoroMode === "pomodoro"
@@ -1033,21 +1011,17 @@ function startPomodoroTimer(sv = true) {
             : "Your long break is over. Ready for the next session?";
       }
       pomodoroFinishedAlertModalInstance?.show();
-      // <<< MODIFIED SECTION END >>>
-
-      pausePomodoroTimer(false); // This will clear interval, set isPomodoroRunning to false, update controls
+      pausePomodoroTimer(false);
       console.log(`Pomodoro Timer (${pomodoroMode}) finished!`);
-      pomodoroRemainingTime = pomodoroTotalDuration; // Reset for next session
-      // isPomodoroRunning is already set to false by pausePomodoroTimer
-      updatePomodoroDisplay(); // Update display to show full time
-      updatePomodoroControls(); // Ensure controls are in reset state
-      savePomodoroState(); // Save the reset state
+      pomodoroRemainingTime = pomodoroTotalDuration;
+      updatePomodoroDisplay();
+      updatePomodoroControls();
+      savePomodoroState();
     } else if (pomodoroRemainingTime % 15 === 0) {
-      // Save state periodically
       savePomodoroState();
     }
   };
-  tick(); // Initial tick
+  tick();
   pomodoroInterval = window.setInterval(tick, 1000);
 }
 function pausePomodoroTimer(sv = true) {
@@ -1060,14 +1034,13 @@ function pausePomodoroTimer(sv = true) {
   updatePomodoroControls();
   if (sv) savePomodoroState();
   if (document.title !== SITE_TITLE) {
-    // Reset document title if it was showing timer
     document.title = SITE_TITLE;
   }
 }
 function resetPomodoroTimer(sv = true) {
-  pausePomodoroTimer(false); // Pause first (clears interval, sets running to false)
+  pausePomodoroTimer(false);
   pomodoroRemainingTime = pomodoroTotalDuration;
-  isPomodoroRunning = false; // Ensure it's false
+  isPomodoroRunning = false;
   updatePomodoroDisplay();
   updatePomodoroControls();
   if (sv) savePomodoroState();
@@ -1085,8 +1058,6 @@ function initializePomodoroTimer() {
   resetPomodoroButtonElement = document.getElementById(
     "reset-pomodoro-btn"
   ) as HTMLButtonElement | null;
-
-  // Query new elements for Pomodoro finished alert
   pomodoroFinishedSoundElement = document.getElementById(
     "pomodoro-finished-sound"
   ) as HTMLAudioElement | null;
@@ -1099,7 +1070,6 @@ function initializePomodoroTimer() {
   pomodoroFinishedAlertMessageElement = document.getElementById(
     "pomodoroFinishedAlertMessage"
   );
-
   if (
     ensureElements({
       pomodoroWidgetElement,
@@ -1108,7 +1078,6 @@ function initializePomodoroTimer() {
       startPomodoroButtonElement,
       pausePomodoroButtonElement,
       resetPomodoroButtonElement,
-      // Add new elements to ensure check if critical, or handle nulls later
       pomodoroFinishedSoundElement,
       pomodoroFinishedAlertModalElement,
       pomodoroFinishedAlertModalLabelElement,
@@ -1137,14 +1106,11 @@ function initializePomodoroTimer() {
     if (header)
       header.addEventListener("pointerdown", handlePomodoroPointerDown);
     else console.error("Pomodoro widget header not found!");
-
-    // Initialize Bootstrap modal instance for Pomodoro finished alert
     if (pomodoroFinishedAlertModalElement) {
       pomodoroFinishedAlertModalInstance = new bootstrap.Modal(
         pomodoroFinishedAlertModalElement
       );
     }
-    // Set the sound source
     if (pomodoroFinishedSoundElement) {
       pomodoroFinishedSoundElement.src = POMODORO_FINISHED_SOUND_URL;
     }
@@ -1156,7 +1122,6 @@ function initializePomodoroTimer() {
 }
 
 // --- Clock Widget Initialization ---
-// (No changes needed here)
 function initializeDigitalClockWidget() {
   digitalClockWidgetElement = document.getElementById("digital-clock-widget");
   widgetDigitalDateDisplayElement = document.getElementById(
@@ -1190,7 +1155,6 @@ function initializeDigitalClockWidget() {
 }
 
 // --- Widget Position Persistence ---
-// (No changes needed here)
 function saveWidgetPosition(k: string, e: HTMLElement | null) {
   if (!e || !k) return;
   const s = window.getComputedStyle(e);
@@ -1305,7 +1269,6 @@ function loadAllWidgetPositions() {
 }
 
 // --- Dragging Logic ---
-// (No changes needed here)
 function startDragging(
   event: PointerEvent,
   element: HTMLElement | null,
@@ -1409,7 +1372,6 @@ function stopDragging(
 }
 
 // --- Drag Handlers (Clock, Battery, Todo, Pomodoro) ---
-// (No changes needed here)
 function handleClockPointerDown(event: PointerEvent) {
   startDragging(
     event,
@@ -1537,7 +1499,6 @@ function handlePomodoroPointerUp(e?: PointerEvent) {
 }
 
 // --- To-Do Resizing Logic ---
-// (No changes needed here)
 function handleTodoResizePointerDown(e: PointerEvent) {
   if (!todoWidgetElement) return;
   e.stopPropagation();
@@ -1598,7 +1559,6 @@ function handleTodoResizePointerUp(e: PointerEvent) {
 }
 
 // --- Utility Function ---
-// (No changes needed here)
 function addRemoveClassesOfMultipleElements(c: ClassesToAddAndRemove) {
   const process = (
     map: ElementClassMap | undefined,
@@ -1619,7 +1579,6 @@ function addRemoveClassesOfMultipleElements(c: ClassesToAddAndRemove) {
 }
 
 // --- Dropdown Actions ---
-// (No changes needed here)
 async function handleCopyLink() {
   if (!copyLinkButton) {
     console.error("Copy link button not found.");
@@ -1698,7 +1657,6 @@ async function handleInstallPWA() {
 }
 
 // --- Main Initialization ---
-// (Query editNameButton, add listener, modify name prompt call)
 function initializeApp() {
   console.log("Initializing App...");
 
@@ -1735,7 +1693,6 @@ function initializeApp() {
     "share-btn"
   ) as HTMLButtonElement | null;
   editNameButton = document.getElementById(
-    // <<< ADDED QUERY
     "edit-name-btn"
   ) as HTMLButtonElement | null;
   installPWAItem = document.getElementById(
@@ -1797,14 +1754,12 @@ function initializeApp() {
   initializeDigitalClockWidget();
   initializeBatteryIndicator();
   initializeTodoList();
-  initializePomodoroTimer(); // This will now also query and setup Pomodoro finished alert elements
+  initializePomodoroTimer();
   loadAllWidgetPositions();
   applyAllWidgetVisibilities();
 
   // --- 6. Handle User Greeting & Name Prompt Initialization ---
-  // IMPORTANT: Initialize the modal elements/instance *before* potentially showing it.
-  initializeAndMaybeShowNamePrompt(!userName); // Show modal only if userName is null/missing
-  // Update greeting if name already exists
+  initializeAndMaybeShowNamePrompt(!userName);
   if (userName) {
     updateGreeting();
   }
@@ -1822,7 +1777,7 @@ function initializeApp() {
   minimalModeSwitch?.addEventListener("change", handleMinimalModeToggle);
   copyLinkButton?.addEventListener("click", handleCopyLink);
   shareButton?.addEventListener("click", handleShare);
-  editNameButton?.addEventListener("click", handleEditNameClick); // <<< ADDED LISTENER
+  editNameButton?.addEventListener("click", handleEditNameClick);
   installPWAButton?.addEventListener("click", handleInstallPWA);
 
   // --- 8. Set Initial NoSleep State and UI ---
@@ -1860,6 +1815,25 @@ function initializeApp() {
     console.log("Service workers are not supported in this browser.");
   }
 
+  // <<< START: ADDED FOR BMC WIDGET INITIALIZATION >>>
+  // --- 10. BMC Widget Color Initialization ---
+  // The BMC widget loads asynchronously. We poll for its element to appear
+  // and set the correct initial color based on the app's state, in case
+  // it loaded after the initial `changeBackground` call.
+  let bmcInitTries = 0;
+  const bmcInitInterval = setInterval(() => {
+    const bmcButton = document.getElementById("bmc-wbtn");
+    // Stop polling if the button is found or after 10 seconds (100 tries * 100ms)
+    if (bmcButton || bmcInitTries > 100) {
+      clearInterval(bmcInitInterval);
+      if (bmcButton && keepAwakeSwitch) {
+        updateBmcWidgetColor(keepAwakeSwitch.checked);
+      }
+    }
+    bmcInitTries++;
+  }, 100);
+  // <<< END: ADDED FOR BMC WIDGET INITIALIZATION >>>
+
   console.log("App Initialization Complete.");
 }
 
@@ -1867,7 +1841,6 @@ function initializeApp() {
 window.addEventListener("DOMContentLoaded", initializeApp);
 
 // --- Global Event Listeners ---
-// (No changes needed here)
 window.addEventListener("beforeunload", () => {
   if (isPomodoroRunning) savePomodoroState();
 });
