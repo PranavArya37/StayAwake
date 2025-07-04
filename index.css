@@ -739,25 +739,6 @@ h1 {
   display: block; /* Ensure it takes full width for centering */
 }
 
-/* --- Corner Badges --- */
-#startup-fame-badge-container {
-  position: fixed;
-  bottom: 18px;
-  left: 18px;
-  z-index: 1000; /* Ensure it's above most content but potentially below modals */
-  transition: transform 0.2s ease-in-out;
-}
-
-#startup-fame-badge-container:hover {
-  transform: scale(1.05);
-}
-
-#startup-fame-badge-container img {
-  display: block; /* remove any extra space below the image */
-  width: 171px;
-  height: 54px;
-}
-
 /* --- Media Queries for Responsiveness --- */
 @media screen and (max-width: 768px) {
   h1 {
