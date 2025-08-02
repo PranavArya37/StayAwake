@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "StayAwake",
+  "version": "1.0",
+  "description": "Tired of screen sleep during presentations or reads? StayAwake keeps your display ON for uninterrupted focus. Official extension.",
+  "author": "Pranav Arya (https://pranavarya.in)",
+  "homepage_url": "https://stayawake.pages.dev",
+  "permissions": ["power", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "StayAwake",
+    "default_icon": {
+      "16": "icons/icon_inactive_16x16.png",
+      "48": "icons/icon_inactive_48x48.png",
+      "128": "icons/icon_inactive_128x128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon_active_16x16.png",
+    "48": "icons/icon_active_48x48.png",
+    "128": "icons/icon_active_128x128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+  }
+}

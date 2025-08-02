@@ -1,0 +1,188 @@
+/* Using the color palette and font from your web app */
+:root {
+  --highlight-green: #49d49d;
+  --highlight-blue: #008dd5;
+  --bg-active: #22242a;
+  --bg-inactive: #3e424d;
+  --text-primary: #fff;
+  --text-dim: #ccc;
+  --border-dark: rgba(255, 255, 255, 0.1);
+  --switch-off-grey: #adb5bd; /* Added from your webapp CSS */
+}
+
+/* Global Styles */
+body {
+  width: 340px;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  color: var(--text-primary);
+  transition: background-color 0.4s ease;
+}
+
+#app-container {
+  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* State-based styling */
+body.state-inactive {
+  background-color: var(--bg-inactive);
+}
+body.state-active {
+  background-color: var(--bg-active);
+}
+#status-heading.state-inactive {
+  color: var(--highlight-blue);
+}
+#status-heading.state-active {
+  color: var(--highlight-green);
+}
+
+/* Header: Greeting and Datetime */
+.header {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+#greeting {
+  margin: 0 0 5px 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+#datetime {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* Main Status */
+.status-container {
+  margin-bottom: 15px;
+}
+
+.status-prefix {
+  font-size: 20px;
+  margin: 0 0 5px 0;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+#status-heading {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  transition: color 0.4s ease;
+}
+
+/* Description */
+.description-container p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 280px;
+  margin: 0 auto 25px auto;
+}
+
+/* --- NEW SWITCH STYLING --- */
+/* The container for the switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 68px; /* Increased width */
+  height: 38px; /* Increased height */
+}
+
+/* Hide the default checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider background */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(
+    --switch-off-grey
+  ); /* Inactive color from your design */
+  transition: 0.4s;
+}
+
+/* The slider inner circle */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 30px; /* Larger circle */
+  width: 30px; /* Larger circle */
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+/* When the hidden checkbox is checked... */
+input:checked + .slider {
+  background-color: var(--highlight-green); /* Active color */
+}
+
+input:checked + .slider:before {
+  transform: translateX(30px); /* Move the circle to the right */
+}
+
+/* Make the slider a rounded pill shape */
+.slider.round {
+  border-radius: 38px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Footer Styling */
+.footer {
+  width: 100%;
+  text-align: center;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-dark);
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer a:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+#greeting {
+  transition: color 0.4s ease;
+}
+#greeting.state-active {
+  color: var(--highlight-green);
+}
+#greeting.state-inactive {
+  color: var(--highlight-blue);
+}
