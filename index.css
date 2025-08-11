@@ -739,6 +739,30 @@ h1 {
   display: block; /* Ensure it takes full width for centering */
 }
 
+/* --- Microsoft Edge Add-on Badge --- */
+/*
+  Styles the floating "Get it for Microsoft Edge" badge that sits in the
+  bottom-left corner of the viewport.
+*/
+#edge-addon-badge {
+  position: fixed; /* Float over page content */
+  bottom: 18px; /* Spacing from the bottom edge */
+  left: 18px; /* Spacing from the left edge */
+  z-index: 1000; /* Stacking order for visibility */
+  transition: transform 0.2s ease-in-out; /* Animate the hover effect */
+}
+
+#edge-addon-badge:hover {
+  transform: scale(1.05); /* Subtle zoom on hover */
+}
+
+#edge-addon-badge img {
+  display: block; /* Remove extra space below image */
+  height: 40px; /* Set badge size */
+  width: auto; /* Maintain aspect ratio */
+  border-radius: 7px; /* Match badge's rounded corners */
+}
+
 /* --- Media Queries for Responsiveness --- */
 @media screen and (max-width: 768px) {
   h1 {
