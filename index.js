@@ -252,7 +252,9 @@ function getGreetingPrefix() {
         ? "Good Morning"
         : h >= 12 && h < 18
             ? "Good Afternoon"
-            : "Good Evening";
+            : h >= 18 && h < 24
+                ? "Good Evening"
+                : "Welcome Back";
 }
 function updateGreeting() {
     if (userGreetingElement && userName) {
