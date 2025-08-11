@@ -184,10 +184,10 @@ const BMC_SLEEPY_COLOR = "#008dd5";
 // --- Utility: Safe Element Access ---
 function ensureElements(elements: {
   [key: string]:
-    | HTMLElement
-    | null
-    | NodeListOf<HTMLElement>
-    | NodeListOf<HTMLButtonElement>;
+  | HTMLElement
+  | null
+  | NodeListOf<HTMLElement>
+  | NodeListOf<HTMLButtonElement>;
 }): boolean {
   for (const key in elements) {
     const el = elements[key];
@@ -291,35 +291,35 @@ function changeBackground(isAwake: boolean) {
   document.documentElement.classList.remove(classToRemove);
   const highlightClassMap: ClassesToAddAndRemove = isAwake
     ? {
-        toAdd: {
-          "highlight-text": [...uniqueTextHighlights, ...statusElement],
-          "icon-highlight-primary": icons,
-          "button-bg-primary": generalButtons,
-        },
-        toRemove: {
-          "secondary-highlight-text": [
-            ...uniqueTextHighlights,
-            ...statusElement,
-          ],
-          "icon-highlight-secondary": icons,
-          "button-bg-secondary": generalButtons,
-        },
-      }
+      toAdd: {
+        "highlight-text": [...uniqueTextHighlights, ...statusElement],
+        "icon-highlight-primary": icons,
+        "button-bg-primary": generalButtons,
+      },
+      toRemove: {
+        "secondary-highlight-text": [
+          ...uniqueTextHighlights,
+          ...statusElement,
+        ],
+        "icon-highlight-secondary": icons,
+        "button-bg-secondary": generalButtons,
+      },
+    }
     : {
-        toAdd: {
-          "secondary-highlight-text": [
-            ...uniqueTextHighlights,
-            ...statusElement,
-          ],
-          "icon-highlight-secondary": icons,
-          "button-bg-secondary": generalButtons,
-        },
-        toRemove: {
-          "highlight-text": [...uniqueTextHighlights, ...statusElement],
-          "icon-highlight-primary": icons,
-          "button-bg-primary": generalButtons,
-        },
-      };
+      toAdd: {
+        "secondary-highlight-text": [
+          ...uniqueTextHighlights,
+          ...statusElement,
+        ],
+        "icon-highlight-secondary": icons,
+        "button-bg-secondary": generalButtons,
+      },
+      toRemove: {
+        "highlight-text": [...uniqueTextHighlights, ...statusElement],
+        "icon-highlight-primary": icons,
+        "button-bg-primary": generalButtons,
+      },
+    };
   addRemoveClassesOfMultipleElements(highlightClassMap);
   updatePomodoroModeButtonsUI();
   // <<< START: ADDED CALL FOR BMC WIDGET >>>
@@ -345,8 +345,10 @@ function getGreetingPrefix(): string {
   return h >= 5 && h < 12
     ? "Good Morning"
     : h >= 12 && h < 18
-    ? "Good Afternoon"
-    : "Good Evening";
+      ? "Good Afternoon"
+      : h >= 18 && h < 24
+        ? "Good Evening"
+        : "Welcome Back";
 }
 function updateGreeting() {
   if (userGreetingElement && userName) {
@@ -735,8 +737,7 @@ function renderTodos() {
     cb.addEventListener("change", () => toggleTodo(todo.id));
     cb.setAttribute(
       "aria-label",
-      `Mark task "${todo.text}" as ${
-        todo.completed ? "incomplete" : "complete"
+      `Mark task "${todo.text}" as ${todo.completed ? "incomplete" : "complete"
       }`
     );
     const span = document.createElement("span");
@@ -999,16 +1000,16 @@ function startPomodoroTimer(sv = true) {
           pomodoroMode === "pomodoro"
             ? "Pomodoro Finished!"
             : pomodoroMode === "shortBreak"
-            ? "Short Break Over!"
-            : "Long Break Over!";
+              ? "Short Break Over!"
+              : "Long Break Over!";
       }
       if (pomodoroFinishedAlertMessageElement) {
         pomodoroFinishedAlertMessageElement.textContent =
           pomodoroMode === "pomodoro"
             ? "Your Pomodoro session has ended. Time for a break!"
             : pomodoroMode === "shortBreak"
-            ? "Your short break is over. Back to focus!"
-            : "Your long break is over. Ready for the next session?";
+              ? "Your short break is over. Back to focus!"
+              : "Your long break is over. Ready for the next session?";
       }
       pomodoroFinishedAlertModalInstance?.show();
       pausePomodoroTimer(false);
@@ -1360,7 +1361,7 @@ function stopDragging(
     if (event?.pointerId) {
       try {
         element.releasePointerCapture(event.pointerId);
-      } catch (err) {}
+      } catch (err) { }
     }
     if (storageKey) {
       saveWidgetPosition(storageKey, element);
@@ -1550,7 +1551,7 @@ function handleTodoResizePointerUp(e: PointerEvent) {
     if (e?.pointerId) {
       try {
         todoWidgetElement.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+      } catch (err) { }
     }
   }
   document.body.style.cursor = "";
