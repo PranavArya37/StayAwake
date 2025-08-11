@@ -13,12 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const hour = now.getHours();
 
         // Set Greeting Text
-        if (hour < 12) {
+        if (hour >= 5 && hour < 12) {
             greetingEl.textContent = 'Good Morning!';
-        } else if (hour < 18) {
+        } else if (hour >= 12 && hour < 18) {
             greetingEl.textContent = 'Good Afternoon!';
-        } else {
+        } else if (hour >= 18 && hour < 24) {
             greetingEl.textContent = 'Good Evening!';
+        } else {
+            greetingEl.textContent = 'Welcome Back!';
         }
 
         // Set Date and Time
