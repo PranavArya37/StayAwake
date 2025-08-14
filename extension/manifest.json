@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Stay Awake - Keep Your Screen Awake",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Tired of screen sleep during presentations or reads? StayAwake keeps your display ON for uninterrupted focus. Official extension.",
   "author": "Pranav Arya (https://pranavarya.in)",
   "homepage_url": "https://stayawake.pages.dev",
