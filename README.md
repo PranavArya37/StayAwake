@@ -215,7 +215,7 @@ For the ultimate convenience, the **StayAwake Browser Extension** allows you to 
 
 | Browser | Status | Link |
 | :--- | :---: | :--- |
-| **Microsoft Edge** | Available | **[Coming Soon]** |
+| **Microsoft Edge** | Available | **[Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/iomlcmincmcifkljkdbjlcfadjhafffc)** |
 | **Opera** | Available | **[Coming Soon]** |
 | **Google Chrome** | Manual Install | See instructions below |
 | **Brave** | Manual Install | See instructions below |
