@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for the StayAwake browser extension.">
+  <meta name="theme-color" content="#22242a">
+  <title>Extension Privacy Policy | StayAwake</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #22242a;
+      --panel: #2b2e36;
+      --text: #f5f7fa;
+      --muted: #c8cdd5;
+      --accent: #49d49d;
+      --line: #454a55;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding: 22px 20px;
+    }
+
+    header a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    header span {
+      color: var(--accent);
+    }
+
+    main {
+      width: min(900px, calc(100% - 32px));
+      margin: 36px auto 64px;
+    }
+
+    h1,
+    h2 {
+      line-height: 1.25;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 2.7rem);
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin-top: 32px;
+      font-size: 1.3rem;
+    }
+
+    p,
+    li {
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 22px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <header><a href="/">Stay<span>Awake</span></a></header>
+  <main>
+    <h1>Browser Extension Privacy Policy</h1>
+    <p class="updated">For the StayAwake browser extension · Last updated: October 28, 2026</p>
+    <p>StayAwake is a browser extension developed by <a href="https://pranavarya.in" target="_blank"
+        rel="noopener noreferrer">Pranav Arya</a>. Its purpose is to help prevent your device's display from turning off
+      due to inactivity while the keep-awake feature is enabled. This policy applies to the browser extension available
+      through the Chrome Web Store and compatible Chromium-based browsers.</p>
+    <p>The separate StayAwake web application has its own <a href="/privacy-policy">privacy policy</a>.</p>
+
+    <h2>1. Information stored locally</h2>
+    <p>The extension stores a preference indicating whether its keep-awake feature is enabled or disabled. This
+      preference is stored under the <code>isActive</code> key using Chrome's <code>chrome.storage.local</code> API. It
+      is used to restore the popup's toggle state and update the extension icon.</p>
+    <p>This preference is stored locally in the browser. The extension's code does not transmit the saved ON/OFF
+      preference to a StayAwake-operated server.</p>
+
+    <h2>2. Permissions</h2>
+    <p><strong>Power:</strong> The extension uses Chrome's Power API to request that the device display remain awake
+      while the feature is enabled. When the user disables the feature, the extension releases the keep-awake request.
+    </p>
+    <p><strong>Storage:</strong> The extension uses local extension storage to save and retrieve the enabled or disabled
+      preference.</p>
+
+    <h2>3. Google Fonts and external requests</h2>
+    <p>The current extension popup references Google Fonts to load the Poppins typeface. When the popup loads the font
+      stylesheet and font files, the browser sends requests to Google's font infrastructure. Google necessarily receives
+      the requesting IP address to deliver the resources and may process other technical request information under its
+      own policies.</p>
+    <p>The extension does not use Google Fonts to send the saved ON/OFF preference to Google. For further information,
+      review <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy
+        Policy</a> and <a href="https://fonts.googleblog.com/2022/11/your-privacy-and-google-fonts.html" target="_blank"
+        rel="noopener noreferrer">Google Fonts' privacy information</a>.</p>
+    <p>The popup also contains a link to the developer's website. If you click that link, your browser navigates to the
+      external site, which operates under its own privacy practices.</p>
+
+    <h2>4. Information the extension does not collect through its own features</h2>
+    <p>The extension's inspected application logic does not include functionality intended to collect or transmit
+      browsing history, webpage content, passwords, financial information, health information, personal communications,
+      location data, keystrokes, mouse movements, or general browsing activity. It does not provide user accounts, cloud
+      synchronization, or a developer-operated database.</p>
+    <p>The extension's saved application preference is the enabled or disabled state described above. External font
+      requests are described separately in Section 3.</p>
+
+    <h2>5. Data sharing</h2>
+    <p>StayAwake does not sell the locally stored preference or send it to advertising networks or data brokers. The
+      extension code does not send the preference to the developer's servers. Google receives technical request
+      information when the popup loads Google Fonts, as described in this policy, and handles that request information
+      under its own policies.</p>
+
+    <h2>6. Data retention and deletion</h2>
+    <p>The enabled or disabled preference remains in the browser's local extension storage until it is changed or the
+      stored data is removed. You can remove the extension through your browser's extension management page. The browser
+      manages removal of the extension and its associated storage.</p>
+
+    <h2>7. Security</h2>
+    <p>StayAwake is designed to keep its application preference locally in the browser. It does not transmit that
+      preference to a StayAwake-operated server. Keep your browser and extensions up to date and install the extension
+      only from a trusted source.</p>
+
+    <h2>8. Changes to this policy</h2>
+    <p>This policy may be updated if the extension's functionality, permissions, external resources, or data practices
+      change. The latest version and revision date will be published at this URL.</p>
+
+    <h2>9. Contact</h2>
+    <p>For questions or privacy concerns about the extension, please open an issue in the <a
+        href="https://github.com/PranavArya37/StayAwake/issues" target="_blank" rel="noopener noreferrer">StayAwake
+        GitHub repository</a>. Please do not post sensitive personal information in a public issue.</p>
+  </main>
+  <footer>StayAwake · Developed by <a href="https://pranavarya.in" target="_blank" rel="noopener noreferrer">Pranav
+      Arya</a> · <a href="/">Return to website</a></footer>
+</body>
+
+</html>

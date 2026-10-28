@@ -1,7 +1,7 @@
 // service-worker.js
 
 // Define a unique name for the cache storage. Increment version to force update.
-const CACHE_NAME = "stay-awake-cache-v1";
+const CACHE_NAME = "stay-awake-cache-v1.2";
 
 // List of URLs to cache during the service worker installation.
 const urlsToCache = [
