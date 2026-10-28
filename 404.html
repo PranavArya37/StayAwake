@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="background-enabled">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#22242a" />
+  <title>404 | StayAwake</title>
+  <link rel="icon" href="/favicon/favicon_green.ico" type="image/x-icon" />
+
+  <!-- Reuse the same typography, palette, and Bootstrap styles as StayAwake. -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/index.css?v=1.1" />
+
+  <style>
+    :root {
+      --error-glow-green: rgba(73, 212, 157, 0.14);
+      --error-glow-blue: rgba(0, 141, 213, 0.13);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: var(--bg-enabled, #22242a);
+    }
+
+    .not-found-page {
+      min-height: 100vh;
+      color: var(--text-light, #fff);
+      background: var(--bg-enabled, #22242a);
+    }
+
+    .not-found-nav {
+      background: rgba(34, 36, 42, 0.98);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .not-found-main {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: calc(100vh - 82px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(3rem, 8vw, 6rem) 1.25rem;
+      text-align: center;
+    }
+
+    .not-found-main::before,
+    .not-found-main::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: clamp(240px, 38vw, 480px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .not-found-main::before {
+      top: -260px;
+      left: -180px;
+      border: 1px solid rgba(73, 212, 157, 0.28);
+      background: radial-gradient(circle, var(--error-glow-green), transparent 68%);
+    }
+
+    .not-found-main::after {
+      right: -210px;
+      bottom: -285px;
+      border: 1px solid rgba(0, 141, 213, 0.3);
+      background: radial-gradient(circle, var(--error-glow-blue), transparent 68%);
+    }
+
+    .not-found-content {
+      width: min(100%, 720px);
+      margin: auto;
+    }
+
+    .not-found-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 0 0 1rem;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid rgba(73, 212, 157, 0.25);
+      border-radius: 999px;
+      background: rgba(73, 212, 157, 0.07);
+      color: var(--highlight-green, #49d49d);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .not-found-code {
+      margin: 0;
+      color: var(--highlight-green, #49d49d);
+      font-size: clamp(6rem, 19vw, 11rem);
+      font-weight: 800;
+      letter-spacing: -0.085em;
+      line-height: 0.95;
+      text-shadow: 0 0 42px rgba(73, 212, 157, 0.12);
+    }
+
+    .not-found-title {
+      margin: 1.35rem 0 0.8rem;
+      color: var(--text-light, #fff);
+      font-size: clamp(1.65rem, 4.5vw, 2.6rem);
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: normal;
+    }
+
+    .not-found-title span {
+      color: var(--highlight-blue, #008dd5);
+    }
+
+    .not-found-description {
+      max-width: 560px;
+      margin: 0 auto;
+      color: var(--text-dim, #ccc);
+      font-size: clamp(1rem, 2.4vw, 1.12rem);
+      line-height: 1.8;
+    }
+
+    .not-found-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.85rem;
+      margin-top: 2rem;
+    }
+
+    .not-found-actions .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      min-width: 205px;
+      padding: 0.85rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease;
+    }
+
+    .not-found-home {
+      background: var(--highlight-green, #49d49d);
+      border: 1px solid var(--highlight-green, #49d49d);
+      color: var(--bg-enabled, #22242a);
+    }
+
+    .not-found-home:hover,
+    .not-found-home:focus {
+      background: #5de0aa;
+      border-color: #5de0aa;
+      color: var(--bg-enabled, #22242a);
+      transform: translateY(-2px);
+    }
+
+    .not-found-extension {
+      background: transparent;
+      border: 1px solid var(--highlight-blue, #008dd5);
+      color: var(--text-light, #fff);
+    }
+
+    .not-found-extension:hover,
+    .not-found-extension:focus {
+      background: rgba(0, 141, 213, 0.12);
+      border-color: var(--highlight-blue, #008dd5);
+      color: var(--text-light, #fff);
+      transform: translateY(-2px);
+    }
+
+    .not-found-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem 1.15rem;
+      margin-top: 2rem;
+      color: var(--text-dim, #ccc);
+      font-size: 0.9rem;
+    }
+
+    .not-found-links a {
+      color: var(--text-dim, #ccc);
+      text-decoration: underline;
+      text-decoration-color: rgba(73, 212, 157, 0.55);
+      text-underline-offset: 3px;
+    }
+
+    .not-found-links a:hover,
+    .not-found-links a:focus {
+      color: var(--highlight-green, #49d49d);
+    }
+
+    .not-found-divider {
+      color: #666;
+      user-select: none;
+    }
+
+    @media (max-width: 480px) {
+      .not-found-main {
+        min-height: calc(100vh - 72px);
+        padding-inline: 1rem;
+      }
+
+      .not-found-actions {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 320px;
+        margin-inline: auto;
+        margin-top: 1.6rem;
+      }
+
+      .not-found-actions .btn {
+        width: 100%;
+      }
+
+      .not-found-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.65rem;
+      }
+
+      .not-found-divider {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="not-found-page">
+  <nav id="navbar" class="navbar navbar-dark not-found-nav py-3">
+    <div class="container">
+      <a class="navbar-brand" href="/" aria-label="StayAwake homepage">
+        Stay <span class="highlight-text">Awake</span>
+      </a>
+      <a class="nav-link" href="/" aria-label="Return to homepage">Home</a>
+    </div>
+  </nav>
+
+  <main class="not-found-main container-fluid">
+    <section class="not-found-content" aria-labelledby="not-found-title">
+      <p class="not-found-eyebrow"><span aria-hidden="true">●</span> StayAwake · Page not found</p>
+      <p class="not-found-code" aria-label="Error 404">404</p>
+      <h1 class="not-found-title" id="not-found-title">Looks like this page <span>fell asleep.</span></h1>
+      <p class="not-found-description">
+        We couldn't find the page you were looking for. The address may be incorrect, or the page may have moved.
+        Let's get you back to something useful.
+      </p>
+
+      <div class="not-found-actions">
+        <a class="btn not-found-home" href="/">
+          <span aria-hidden="true">⌂</span> Return to Homepage
+        </a>
+        <a class="btn not-found-extension"
+          href="https://microsoftedge.microsoft.com/addons/detail/stayawake/iomlcmincmcifkljkdbjlcfadjhafffc"
+          target="_blank" rel="noopener noreferrer">
+          Get the Edge Extension <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <nav class="not-found-links" aria-label="More StayAwake links">
+        <a href="https://stayawake.pages.dev/">Official StayAwake Website</a>
+        <span class="not-found-divider" aria-hidden="true">•</span>
+        <a href="https://github.com/PranavArya37/StayAwake" target="_blank" rel="noopener noreferrer">Open-source project</a>
+        <span class="not-found-divider" aria-hidden="true">•</span>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <span class="not-found-divider" aria-hidden="true">•</span>
+        <a href="/extension-privacy-policy">Extension Privacy Policy</a>
+      </nav>
+    </section>
+  </main>
+</body>
+</html>
