@@ -144,7 +144,7 @@ If you want to run or modify the project locally:
     - Using `http-server` (Node.js):
 
         ```bash
-        npx http-server .
+        npx http-server
         ```
 
     - Using Python 3:
@@ -217,8 +217,8 @@ For the ultimate convenience, the **StayAwake Browser Extension** allows you to 
 | :--- | :---: | :--- |
 | **Microsoft Edge** | Available | **[Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/iomlcmincmcifkljkdbjlcfadjhafffc)** |
 | **Opera** | Available | **[Coming Soon]** |
-| **Google Chrome** | Manual Install | See instructions below |
-| **Brave** | Manual Install | See instructions below |
+| **Google Chrome** | Available | **[Chrome Web Store](https://chromewebstore.google.com/detail/mlfcgnepjcpfjaknendmgpgkmejbnjpo)** |
+| **Brave** | Available | **[Chrome Web Store](https://chromewebstore.google.com/detail/mlfcgnepjcpfjaknendmgpgkmejbnjpo)** |
 
 ## 🧭 How to Use Stay Awake
 
